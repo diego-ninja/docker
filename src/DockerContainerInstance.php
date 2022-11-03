@@ -11,6 +11,8 @@ class DockerContainerInstance
 {
     use Macroable;
 
+    public const DEFAULT_PATH_AUTHORIZED_KEYS = '/root/.ssh/authorized_keys';
+
     public function __construct(
         private DockerContainer $config,
         private string $dockerIdentifier,
@@ -18,14 +20,14 @@ class DockerContainerInstance
     ) {
     }
 
-    public static function fromExisting(string $dockerIdentifier, string $name): self
+    public static function fromExisting(string $name): self
     {
         return new self(
             config: new DockerContainer(
                 image: self::getImageFromExistingContainer($name),
                 name: $name
             ),
-            dockerIdentifier: $dockerIdentifier,
+            dockerIdentifier: self::getIdFromExistingContainer($name),
             name: $name
         );
     }
@@ -92,18 +94,16 @@ class DockerContainerInstance
 
         $process = Process::fromShellCommandline($fullCommand);
 
-        if ($async) {
-            $process->start();
-        } else {
-            $process->run();
-        }
+        $async ? $process->start() : $process->run();
 
         return $process;
     }
 
 
-    public function addPublicKey(string $pathToPublicKey, string $pathToAuthorizedKeys = '/root/.ssh/authorized_keys'): self
-    {
+    public function addPublicKey(
+        string $pathToPublicKey,
+        string $pathToAuthorizedKeys = self::DEFAULT_PATH_AUTHORIZED_KEYS
+    ): self {
         $publicKeyContents = trim(file_get_contents($pathToPublicKey));
 
         $this->execute('echo \''.$publicKeyContents.'\' >> '.$pathToAuthorizedKeys);
@@ -154,4 +154,16 @@ class DockerContainerInstance
 
         return trim($process->getOutput());
     }
+
+    private static function getIdFromExistingContainer(string $name): string
+    {
+        $process = Process::fromShellCommandline(
+            sprintf('docker ps -q -f name=%s', $name)
+        );
+
+        $process->run();
+
+        return trim($process->getOutput());
+    }
+
 }
