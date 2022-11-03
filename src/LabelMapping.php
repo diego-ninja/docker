@@ -1,22 +1,15 @@
 <?php
 
-namespace Spatie\Docker;
+namespace Ninja\Docker;
 
 class LabelMapping
 {
-    private string $name;
-
-    private string $value;
-
-    public function __construct(string $name, string $value)
+    public function __construct(private string $name, private string $value)
     {
-        $this->name = $name;
-
-        $this->value = $value;
     }
 
     public function __toString()
     {
-        return "-l {$this->name}={$this->value}";
+        return sprintf("-l %s=%s", $this->name, $this->value);
     }
 }

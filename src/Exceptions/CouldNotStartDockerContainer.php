@@ -1,15 +1,21 @@
 <?php
 
-namespace Spatie\Docker\Exceptions;
+namespace Ninja\Docker\Exceptions;
 
 use Exception;
-use Spatie\Docker\DockerContainer;
+use Ninja\Docker\DockerContainer;
 use Symfony\Component\Process\Process;
 
 class CouldNotStartDockerContainer extends Exception
 {
-    public static function processFailed(DockerContainer $container, Process $process)
+    public static function processFailed(DockerContainer $container, Process $process): static
     {
-        return new static("Could not start docker container for image {$container->image}`. Process output: `{$process->getErrorOutput()}`");
+        return new static(
+            message:  sprintf(
+                "Could not start docker container for image %s`. Process output: `%s`",
+                $container->image,
+                $process->getErrorOutput()
+            )
+        );
     }
 }

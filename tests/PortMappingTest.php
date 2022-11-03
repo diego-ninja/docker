@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Spatie\Docker\Tests;
+namespace Ninja\Docker\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Spatie\Docker\PortMapping;
+use Ninja\Docker\PortMapping;
 
 class PortMappingTest extends TestCase
 {

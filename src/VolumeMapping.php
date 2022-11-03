@@ -1,22 +1,15 @@
 <?php
 
-namespace Spatie\Docker;
+namespace Ninja\Docker;
 
 class VolumeMapping
 {
-    private string $pathOnHost;
-
-    private string $pathOnDocker;
-
-    public function __construct(string $pathOnHost, string $pathOnDocker)
+    public function __construct(private string $pathOnHost, private string $pathOnDocker)
     {
-        $this->pathOnHost = $pathOnHost;
-
-        $this->pathOnDocker = $pathOnDocker;
     }
 
     public function __toString()
     {
-        return "-v {$this->pathOnHost}:{$this->pathOnDocker}";
+        return sprintf("-v %s:%s", $this->pathOnHost, $this->pathOnDocker);
     }
 }

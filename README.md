@@ -1,6 +1,4 @@
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/support-ukraine.svg?t=1" />](https://supportukrainenow.org)
-
 # Manage docker containers with PHP
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/docker.svg?style=flat-square)](https://packagist.org/packages/spatie/docker)
@@ -9,28 +7,44 @@
 
 This package provides a nice way to start docker containers and execute commands on them.
 
+
 ````php
 $containerInstance = DockerContainer::create($imageName)->start();
-
 $process = $containerInstance->execute('whoami');
-
 $process->getOutput(); // returns the name of the user inside the docker container
 ````
 
-## Support us
+## Differences
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/docker.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/docker)
+This package is a fork of [spatie/docker](https://github.com/spatie/docker) with some adaptations to fit my particular needs.
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+As major differences, this package drops php 7.x support and gives the possibility of use the library with already created
+containers. Besides that, all methods returning a Symfony Process object, now accepts an $async flag to run the process
+asynchronously, using the start method instead the run. Finally, the start method now accepts an optional callable, if present,
+the callable is called continuously while the container starts, the callable receives the Symfony Process object as only parameter.
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+```php
+$containerInstance = DockerContainerInstance::fromExisting("test-runner"); // uses a running container
+
+$spinner = new Spinner("Running unit tests...") // starts a console spinner
+
+$process = $containerInstance->execute('php vendor/bin/phpunit', true); // starts process asynchronous
+
+while($process->isRunning()) {
+    $spinner->advance(); // updates spinner
+    usleep(2000);    
+}
+
+$process->isSuccessful() ? $spinner->success() : $spinner->error(); // finishes spinner based on result
+````
+
 
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require spatie/docker
+composer require ninja/docker
 ```
 
 ## Usage
@@ -41,7 +55,7 @@ You can get an instance of a docker container using
 $containerInstance = DockerContainer::create($imageName)->start();
 ```
 
-By default the container will be daemonized and it will be cleaned up after it exists.
+By default, the container will be daemonized, and it will be cleaned up after it exists.
 
 ### Customizing the docker container
 
@@ -65,7 +79,7 @@ $containerInstance = DockerContainer::create($imageName)
     ->start();
 ```
 
-#### Priviliged
+#### Privileged
 
 If you want your docker being privileged, call `privileged`.
 
@@ -220,6 +234,8 @@ You can execute multiple command in one go by passing an array.
 
 ```php
 $process = $instance->execute([$command, $anotherCommand]);
+$asyncProcess = $instance->execute([$command, $anotherCommand], true);
+
 ```
 
 The execute method returns an instance of [`Symfony/Process`](https://symfony.com/doc/current/components/process.html).
@@ -271,10 +287,10 @@ $inspectArray[0]['NetworkSettings']['IPAddress']; // 172.17.0.2
 
 #### Adding other functions on the docker instance
 
-The `Spatie\Docker\ContainerInstance` class is [macroable](https://github.com/spatie/macroable). This means you can add extra functions to it.
+The `Ninja\Docker\ContainerInstance` class is [macroable](https://github.com/spatie/macroable). This means you can add extra functions to it.
 
 ````php
-Spatie\Docker\DockerContainerInstance::macro('whoAmI', function () {
+Ninja\Docker\DockerContainerInstance::macro('whoAmI', function () {
     $process = $containerInstance->run('whoami');
 
 
@@ -315,6 +331,7 @@ If you've found a bug regarding security please mail [security@spatie.be](mailto
 
 - [Ruben Van Assche](https://github.com/rubenvanassche)
 - [Freek Van der Herten](https://github.com/freekmurze)
+- [Diego Rin Martin](https://github.com/diego-ninja)
 - [All Contributors](../../contributors)
 
 ## License

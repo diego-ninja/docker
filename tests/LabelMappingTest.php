@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Spatie\Docker\Tests;
+namespace Ninja\Docker\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Spatie\Docker\LabelMapping;
+use Ninja\Docker\LabelMapping;
 
 class LabelMappingTest extends TestCase
 {
