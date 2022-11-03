@@ -1,7 +1,8 @@
 <?php
 
-namespace Spatie\Docker;
+namespace Ninja\Docker;
 
+use JsonException;
 use Spatie\Macroable\Macroable;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -10,22 +11,23 @@ class DockerContainerInstance
 {
     use Macroable;
 
-    private DockerContainer $config;
-
-    private string $dockerIdentifier;
-
-    private string $name;
-
     public function __construct(
-        DockerContainer $config,
-        string $dockerIdentifier,
-        string $name
+        private DockerContainer $config,
+        private string $dockerIdentifier,
+        private string $name
     ) {
-        $this->config = $config;
+    }
 
-        $this->dockerIdentifier = $dockerIdentifier;
-
-        $this->name = $name;
+    public static function fromExisting(string $dockerIdentifier, string $name): self
+    {
+        return new self(
+            config: new DockerContainer(
+                image: self::getImageFromExistingContainer($name),
+                name: $name
+            ),
+            dockerIdentifier: $dockerIdentifier,
+            name: $name
+        );
     }
 
     public function __destruct()
@@ -35,13 +37,22 @@ class DockerContainerInstance
         }
     }
 
-    public function stop(): Process
+    public function start(bool $async = false): Process
     {
-        $fullCommand = $this->config->getStopCommand($this->getShortDockerIdentifier());
-
+        $fullCommand = $this->config->getStartCommand($this->getShortDockerIdentifier());
         $process = Process::fromShellCommandline($fullCommand);
 
-        $process->run();
+        $async ? $process->start() : $process->run();
+
+        return $process;
+    }
+
+    public function stop(bool $async = false): Process
+    {
+        $fullCommand = $this->config->getStopCommand($this->getShortDockerIdentifier());
+        $process = Process::fromShellCommandline($fullCommand);
+
+        $async ? $process->start() : $process->run();
 
         return $process;
     }
@@ -67,11 +78,11 @@ class DockerContainerInstance
     }
 
     /**
-     * @param string|array $command
-     *
-     * @return \Symfony\Component\Process\Process
+     * @param array|string $command
+     * @param bool $async
+     * @return Process
      */
-    public function execute($command): Process
+    public function execute(array|string $command, bool $async = false): Process
     {
         if (is_array($command)) {
             $command = implode(';', $command);
@@ -81,10 +92,15 @@ class DockerContainerInstance
 
         $process = Process::fromShellCommandline($fullCommand);
 
-        $process->run();
+        if ($async) {
+            $process->start();
+        } else {
+            $process->run();
+        }
 
         return $process;
     }
+
 
     public function addPublicKey(string $pathToPublicKey, string $pathToAuthorizedKeys = '/root/.ssh/authorized_keys'): self
     {
@@ -113,6 +129,9 @@ class DockerContainerInstance
         return $this;
     }
 
+    /**
+     * @throws JsonException
+     */
     public function inspect(): array
     {
         $fullCommand = $this->config->getInspectCommand($this->getShortDockerIdentifier());
@@ -122,6 +141,17 @@ class DockerContainerInstance
 
         $json = trim($process->getOutput());
 
-        return json_decode($json, true);
+        return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    private static function getImageFromExistingContainer(string $name): string
+    {
+        $process = Process::fromShellCommandline(
+            sprintf('docker ps --format="{{.Image}}" -f name=%s', $name)
+        );
+
+        $process->run();
+
+        return trim($process->getOutput());
     }
 }

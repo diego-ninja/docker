@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Spatie\Docker\Tests;
+namespace Ninja\Docker\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Spatie\Docker\EnvironmentMapping;
+use Ninja\Docker\EnvironmentMapping;
 
 class EnvironmentMappingTest extends TestCase
 {

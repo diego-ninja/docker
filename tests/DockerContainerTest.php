@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Docker\Tests;
+namespace Ninja\Docker\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Spatie\Docker\DockerContainer;
+use Ninja\Docker\DockerContainer;
 
 class DockerContainerTest extends TestCase
 {
@@ -19,7 +19,7 @@ class DockerContainerTest extends TestCase
     /** @test */
     public function it_will_daemonize_and_clean_up_the_container_by_default()
     {
-        $command = $this->container->getStartCommand();
+        $command = $this->container->getRunCommand();
 
         $this->assertEquals('docker run -d --rm spatie/docker', $command);
     }
@@ -35,7 +35,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->doNotDaemonize()
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run --rm spatie/docker', $command);
     }
@@ -45,7 +45,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->privileged()
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -d --privileged --rm spatie/docker', $command);
     }
@@ -55,7 +55,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->doNotCleanUpAfterExit()
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -d spatie/docker', $command);
     }
@@ -65,7 +65,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->name('my-name')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run --name my-name -d --rm spatie/docker', $command);
     }
@@ -76,7 +76,7 @@ class DockerContainerTest extends TestCase
         $command = $this->container
             ->mapPort(4848, 22)
             ->mapPort(9000, 21)
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -p 4848:22 -p 9000:21 -d --rm spatie/docker', $command);
     }
@@ -87,7 +87,7 @@ class DockerContainerTest extends TestCase
         $command = $this->container
             ->mapPort('127.0.0.1:4848', 22)
             ->mapPort('0.0.0.0:9000', 21)
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -p 127.0.0.1:4848:22 -p 0.0.0.0:9000:21 -d --rm spatie/docker', $command);
     }
@@ -98,7 +98,7 @@ class DockerContainerTest extends TestCase
         $command = $this->container
             ->setEnvironmentVariable('NAME', 'VALUE')
             ->setEnvironmentVariable('NAME2', 'VALUE2')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -e NAME=VALUE -e NAME2=VALUE2 -d --rm spatie/docker', $command);
     }
@@ -109,7 +109,7 @@ class DockerContainerTest extends TestCase
         $command = $this->container
             ->setVolume('/on/my/host', '/on/my/container')
             ->setVolume('/data', '/data')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -v /on/my/host:/on/my/container -v /data:/data -d --rm spatie/docker', $command);
     }
@@ -121,7 +121,7 @@ class DockerContainerTest extends TestCase
             ->setLabel('traefik.enable', 'true')
             ->setLabel('foo', 'bar')
             ->setLabel('name', 'spatie')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -l traefik.enable=true -l foo=bar -l name=spatie -d --rm spatie/docker', $command);
     }
@@ -131,7 +131,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->setOptionalArgs('-it', '-a', '-i', '-t')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -it -a -i -t -d --rm spatie/docker', $command);
     }
@@ -141,7 +141,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->network('my-network')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -d --rm --network my-network spatie/docker', $command);
     }
@@ -151,7 +151,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->remoteHost('ssh://username@host')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker -H ssh://username@host run -d --rm spatie/docker', $command);
     }
@@ -161,7 +161,7 @@ class DockerContainerTest extends TestCase
     {
         $command = $this->container
             ->command('whoami')
-            ->getStartCommand();
+            ->getRunCommand();
 
         $this->assertEquals('docker run -d --rm spatie/docker whoami', $command);
     }

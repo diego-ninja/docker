@@ -1,5 +1,5 @@
 {
-    "name": "spatie/docker",
+    "name": "ninja/docker",
     "description": "Run a docker container in your PHPUnit tests",
     "keywords": [
         "spatie",
@@ -19,26 +19,33 @@
             "email": "freek@spatie.be",
             "homepage": "https://spatie.be",
             "role": "Developer"
+        },
+        {
+            "name": "Diego Rin Martín",
+            "email": "yosoy@diego.ninja",
+            "homepage": "https://diego.ninja",
+            "role": "Developer"
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
-        "spatie/macroable": "^1.0",
-        "symfony/process": "^5.3|^6.0"
+        "php": "^8.0",
+        "spatie/macroable": "^2.0",
+        "symfony/process": "^6.0"
     },
     "require-dev": {
+        "roave/security-advisories": "dev-latest",
         "phpunit/phpunit": "^9.4",
         "spatie/ssh": "^1.7.0",
         "symfony/var-dumper": "^5.3"
     },
     "autoload": {
         "psr-4": {
-            "Spatie\\Docker\\": "src"
+            "Ninja\\Docker\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\Docker\\Tests\\": "tests"
+            "Ninja\\Docker\\Tests\\": "tests"
         }
     },
     "scripts": {

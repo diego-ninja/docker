@@ -1,26 +1,15 @@
 <?php
 
-namespace Spatie\Docker;
+namespace Ninja\Docker;
 
 class PortMapping
 {
-    /** @var int|string */
-    private $portOnHost;
-
-    private int $portOnDocker;
-
-    /**
-     * @param int|string $portOnHost
-     */
-    public function __construct($portOnHost, int $portOnDocker)
+    public function __construct(private int|string $portOnHost, private int $portOnDocker)
     {
-        $this->portOnHost = $portOnHost;
-
-        $this->portOnDocker = $portOnDocker;
     }
 
     public function __toString()
     {
-        return "-p {$this->portOnHost}:{$this->portOnDocker}";
+        return sprintf("-p %s:%s", $this->portOnHost, $this->portOnDocker);
     }
 }

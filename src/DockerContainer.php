@@ -1,18 +1,14 @@
 <?php
 
-namespace Spatie\Docker;
+namespace Ninja\Docker;
 
-use Spatie\Docker\Exceptions\CouldNotStartDockerContainer;
+use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
 use Spatie\Macroable\Macroable;
 use Symfony\Component\Process\Process;
 
 class DockerContainer
 {
     use Macroable;
-
-    public string $image = '';
-
-    public string $name = '';
 
     public bool $daemonize = true;
 
@@ -44,11 +40,8 @@ class DockerContainer
 
     public array $optionalArgs = [];
 
-    public function __construct(string $image, string $name = '')
+    public function __construct(public string $image, public string $name = '')
     {
-        $this->image = $image;
-
-        $this->name = $name;
     }
 
     public static function create(...$args): self
@@ -119,10 +112,7 @@ class DockerContainer
         return $this;
     }
 
-    /**
-     * @param int|string $portOnHost
-     */
-    public function mapPort($portOnHost, int $portOnDocker): self
+    public function mapPort(int|string $portOnHost, int $portOnDocker): self
     {
         $this->portMappings[] = new PortMapping($portOnHost, $portOnDocker);
 
@@ -188,9 +178,9 @@ class DockerContainer
         return implode(' ', $baseCommand);
     }
 
-    public function getStartCommand(): string
+    public function getRunCommand(): string
     {
-        $startCommand = [
+        $runCommand = [
             $this->getBaseCommand(),
             'run',
             ...$this->getExtraOptions(),
@@ -198,10 +188,10 @@ class DockerContainer
         ];
 
         if ($this->command !== '') {
-            $startCommand[] = $this->command;
+            $runCommand[] = $this->command;
         }
 
-        return implode(' ', $startCommand);
+        return implode(' ', $runCommand);
     }
 
     public function getStopCommand(string $dockerIdentifier): string
@@ -213,6 +203,17 @@ class DockerContainer
         ];
 
         return implode(' ', $stopCommand);
+    }
+
+    public function getStartCommand(string $dockerIdentifier): string
+    {
+        $startCommand = [
+            $this->getBaseCommand(),
+            'start',
+            $dockerIdentifier,
+        ];
+
+        return implode(' ', $startCommand);
     }
 
     public function getExecCommand(string $dockerIdentifier, string $command): string
@@ -254,13 +255,22 @@ class DockerContainer
         return implode(' ', $execCommand);
     }
 
-    public function start(): DockerContainerInstance
+    /**
+     * @throws CouldNotStartDockerContainer
+     */
+    public function start(?callable $callback = null): DockerContainerInstance
     {
-        $command = $this->getStartCommand();
+        $command = $this->getRunCommand();
 
         $process = Process::fromShellCommandline($command);
-
-        $process->run();
+        if ($callback) {
+            $process->start();
+            while ($process->isRunning()) {
+                $callback($process);
+            }
+        } else {
+            $process->run();
+        }
 
         if (! $process->isSuccessful()) {
             throw CouldNotStartDockerContainer::processFailed($this, $process);

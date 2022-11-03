@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Docker\Tests;
+namespace Ninja\Docker\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Spatie\Docker\DockerContainer;
-use Spatie\Docker\DockerContainerInstance;
-use Spatie\Docker\Exceptions\CouldNotStartDockerContainer;
+use Ninja\Docker\DockerContainer;
+use Ninja\Docker\DockerContainerInstance;
+use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
 use Spatie\Ssh\Ssh;
 
 class FeatureTest extends TestCase
