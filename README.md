@@ -24,9 +24,12 @@ asynchronously, using the start method instead the run. Finally, the start metho
 the callable is called continuously while the container starts, the callable receives the Symfony Process object as only parameter.
 
 ```php
-$containerInstance = DockerContainerInstance::fromExisting($containerName); // uses a running container
+$containerInstance = DockerContainerInstance::fromExisting("test-runner"); // uses a running container
+
 $spinner = new Spinner("Running unit tests...") // starts a console spinner
+
 $process = $containerInstance->execute('php vendor/bin/phpunit', true); // starts process asynchronous
+
 while($process->isRunning()) {
     $spinner->advance(); // updates spinner
     usleep(2000);    
@@ -231,6 +234,8 @@ You can execute multiple command in one go by passing an array.
 
 ```php
 $process = $instance->execute([$command, $anotherCommand]);
+$asyncProcess = $instance->execute([$command, $anotherCommand], true);
+
 ```
 
 The execute method returns an instance of [`Symfony/Process`](https://symfony.com/doc/current/components/process.html).
