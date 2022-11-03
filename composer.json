@@ -1,11 +1,11 @@
 {
-    "name": "ninja/docker",
-    "description": "Run a docker container in your PHPUnit tests",
+    "name": "diego-ninja/docker",
+    "description": "Run and manage docker containers in your php code",
     "keywords": [
-        "spatie",
+        "ninja",
         "docker"
     ],
-    "homepage": "https://github.com/spatie/docker",
+    "homepage": "https://github.com/diego-ninja/docker",
     "license": "MIT",
     "authors": [
         {
