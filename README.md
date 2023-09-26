@@ -159,6 +159,17 @@ $containerInstance = DockerContainer::create($imageName)
     ->start();
 ```
 
+#### Adding Commands
+
+You can add commands using the `setCommands` method.
+
+```php
+$containerInstance = DockerContainer::create($imageName)
+    ->setCommands('--api.insecure=true', '--providers.docker=true')
+    ->start();
+```
+These commands will be placed at the end of to the `docker run` command.
+
 #### Add optional arguments
 
 If you want to add optional arguments to the `docker run` command, use `setOptionalArgs` method:
@@ -168,7 +179,7 @@ $containerInstance = DockerContainer::create($imageName)
     ->setOptionalArgs('-it', '-a')
     ->start();
 ```
-These arguments will be places after `docker run` immediately.
+These arguments will be placed after `docker run` immediately.
 
 
 #### Automatically stopping the container after PHP exists
@@ -220,6 +231,16 @@ You can get the string that will be executed when a container is started with th
 DockerContainer::create($imageName)->getStartCommand();
 ```
 
+#### Changing the start command timeout
+
+You can change the timeout for the start command with the `setStartCommandTimeout` function _(the default is 60s)_.
+
+```php
+$containerInstance = DockerContainer::create($imageName)
+    ->setStartCommandTimeout(120)
+    ->start();
+```
+
 ### Available methods on the docker container instance
 
 #### Executing a command
@@ -236,6 +257,12 @@ You can execute multiple command in one go by passing an array.
 $process = $instance->execute([$command, $anotherCommand]);
 $asyncProcess = $instance->execute([$command, $anotherCommand], true);
 
+```
+
+To change the process timeout you can pass a third parameter to the `execute` method _(the default is 60s)_.
+
+```php
+$process = $instance->execute([$command, $anotherCommand], false, 3600);
 ```
 
 The execute method returns an instance of [`Symfony/Process`](https://symfony.com/doc/current/components/process.html).

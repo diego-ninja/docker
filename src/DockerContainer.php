@@ -40,6 +40,10 @@ class DockerContainer
 
     public array $optionalArgs = [];
 
+    public array $commands = [];
+
+    protected float $startCommandTimeout = 60;
+
     public function __construct(public string $image, public string $name = '')
     {
     }
@@ -147,6 +151,13 @@ class DockerContainer
         return $this;
     }
 
+    public function setCommands(...$args): self
+    {
+        $this->commands = $args;
+
+        return $this;
+    }
+
     public function stopOnDestruct(bool $stopOnDestruct = true): self
     {
         $this->stopOnDestruct = $stopOnDestruct;
@@ -185,6 +196,7 @@ class DockerContainer
             'run',
             ...$this->getExtraOptions(),
             $this->image,
+            ...$this->commands,
         ];
 
         if ($this->command !== '') {
@@ -263,6 +275,7 @@ class DockerContainer
         $command = $this->getRunCommand();
 
         $process = Process::fromShellCommandline($command);
+        $process->setTimeout($this->startCommandTimeout);
         if ($callback) {
             $process->start();
             while ($process->isRunning()) {
@@ -283,6 +296,18 @@ class DockerContainer
             $dockerIdentifier,
             $this->name,
         );
+    }
+
+    public function setStartCommandTimeout(float $timeout): self
+    {
+        $this->startCommandTimeout = $timeout;
+
+        return $this;
+    }
+
+    public function getStartCommandTimeout(): float
+    {
+        return $this->startCommandTimeout;
     }
 
     protected function getExtraOptions(): array
