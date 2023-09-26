@@ -22,7 +22,7 @@
     </report>
   </coverage>
   <testsuites>
-    <testsuite name="Spatie Test Suite">
+    <testsuite name="Docker Test Suite">
       <directory>tests</directory>
     </testsuite>
   </testsuites>
