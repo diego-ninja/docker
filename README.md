@@ -1,9 +1,9 @@
 
 # Manage docker containers with PHP
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/docker.svg?style=flat-square)](https://packagist.org/packages/spatie/docker)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/docker.svg?style=flat-square)](https://packagist.org/packages/diego-ninja/docker)
 [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/diego-ninja/docker/run-tests?label=tests)](https://github.com/diego-ninja/docker/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/docker.svg?style=flat-square)](https://packagist.org/packages/spatie/docker)
+[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat-square)](https://packagist.org/packages/diego-ninja/docker)
 
 This package provides a nice way to start docker containers and execute commands on them.
 
@@ -18,10 +18,9 @@ $process->getOutput(); // returns the name of the user inside the docker contain
 
 This package is a fork of [spatie/docker](https://github.com/spatie/docker) with some adaptations to fit my particular needs.
 
-As major differences, this package drops php 7.x support and gives the possibility of use the library with already created
-containers. Besides that, all methods returning a Symfony Process object, now accepts an $async flag to run the process
-asynchronously, using the start method instead the run. Finally, the start method now accepts an optional callable, if present,
-the callable is called continuously while the container starts, the callable receives the Symfony Process object as only parameter.
+As major differences, this package drops php 7.x support and gives the possibility to use the library with already created
+containers. Also, all methods that return a Symfony process object now accept an $async flag to run the process asynchronously, using the start method instead of run method. 
+Finally, the start method now accepts an optional callable, if present the callable will be called continuously as the container runs, this callable will take the [Symfony Process](https://symfony.com/doc/current/components/process.html) object as its only parameter.
 
 ```php
 $containerInstance = DockerContainerInstance::fromExisting("test-runner"); // uses a running container
@@ -44,7 +43,7 @@ $process->isSuccessful() ? $spinner->success() : $spinner->error(); // finishes 
 You can install the package via composer:
 
 ```bash
-composer require ninja/docker
+composer require diego-ninja/docker
 ```
 
 ## Usage

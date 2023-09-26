@@ -276,6 +276,7 @@ class DockerContainer
 
         $process = Process::fromShellCommandline($command);
         $process->setTimeout($this->startCommandTimeout);
+
         if ($callback) {
             $process->start();
             while ($process->isRunning()) {
