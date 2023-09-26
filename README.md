@@ -1,10 +1,11 @@
 
 # Manage docker containers with PHP
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/docker.svg?style=flat-square)](https://packagist.org/packages/diego-ninja/docker)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/docker.svg?style=flat)](https://packagist.org/packages/diego-ninja/docker)
+[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat)](https://packagist.org/packages/diego-ninja/docker)
+![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/docker.svg?style=flat)
 [![License](https://poser.pugx.org/diego-ninja/docker/license)](https://packagist.org/packages/diego-ninja/docker)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/diego-ninja/docker/run-tests.yml?label=tests)](https://github.com/diego-ninja/docker/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat-square)](https://packagist.org/packages/diego-ninja/docker)
 
 This package provides a nice way to start docker containers and execute commands on them.
 
