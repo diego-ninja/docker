@@ -28,13 +28,13 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "spatie/macroable": "^2.0",
         "symfony/process": "^6.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
-        "phpunit/phpunit": "^9.4",
+        "pestphp/pest": "^1.22",
         "spatie/ssh": "^1.7.0",
         "symfony/var-dumper": "^5.3"
     },
@@ -49,11 +49,14 @@
         }
     },
     "scripts": {
-        "test": "chmod -R 700 tests/keys && vendor/bin/phpunit",
+        "test": "chmod -R 700 tests/keys && vendor/bin/pest",
         "build-docker": "docker build -t spatie/docker ./tests/docker",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "test-coverage": "vendor/bin/pest --coverage-html coverage"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }

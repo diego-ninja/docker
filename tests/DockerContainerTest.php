@@ -1,235 +1,201 @@
 <?php
 
-namespace Ninja\Docker\Tests;
+declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
 use Ninja\Docker\DockerContainer;
 
-class DockerContainerTest extends TestCase
-{
-    private DockerContainer $container;
+beforeEach(function () {
+    $this->container = new DockerContainer('ninja/docker');
+});
 
-    public function setUp(): void
-    {
-        parent::setUp();
+it('will daemonize and clean up the container by default', function () {
+    $command = $this->container->getRunCommand("ninja/docker");
 
-        $this->container = new DockerContainer('spatie/docker');
-    }
+    expect($command)->toEqual('docker run -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_will_daemonize_and_clean_up_the_container_by_default()
-    {
-        $command = $this->container->getRunCommand();
+it('can instantiate via the create method', function () {
+    expect(DockerContainer::create('ninja/docker'))->toBeInstanceOf(DockerContainer::class);
+});
 
-        $this->assertEquals('docker run -d --rm spatie/docker', $command);
-    }
+it('can not be daemonized', function () {
+    $command = $this->container
+        ->doNotDaemonize()
+        ->getRunCommand("ninja/docker");
 
-    /** @test */
-    public function it_can_instantiate_via_the_create_method()
-    {
-        $this->assertInstanceOf(DockerContainer::class, DockerContainer::create('spatie/docker'));
-    }
+    expect($command)->toEqual('docker run --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_not_be_daemonized()
-    {
-        $command = $this->container
-            ->doNotDaemonize()
-            ->getRunCommand();
+it('can be privileged', function () {
+    $command = $this->container
+        ->privileged()
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -d --privileged --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_be_privileged()
-    {
-        $command = $this->container
-            ->privileged()
-            ->getRunCommand();
+it('can not be cleaned up', function () {
+    $command = $this->container
+        ->doNotCleanUpAfterExit()
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -d --privileged --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -d ninja/docker');
+});
 
-    /** @test */
-    public function it_can_not_be_cleaned_up()
-    {
-        $command = $this->container
-            ->doNotCleanUpAfterExit()
-            ->getRunCommand();
+it('can be named', function () {
+    $command = $this->container
+        ->name('my-name')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -d spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run --name my-name -d --rm ninja/docker');
+});
 
-    /** @test **/
-    public function it_can_be_named()
-    {
-        $command = $this->container
-            ->name('my-name')
-            ->getRunCommand();
+it('can map ports', function () {
+    $command = $this->container
+        ->mapPort(4848, 22)
+        ->mapPort(9000, 21)
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run --name my-name -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -p 4848:22 -p 9000:21 -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_map_ports()
-    {
-        $command = $this->container
-            ->mapPort(4848, 22)
-            ->mapPort(9000, 21)
-            ->getRunCommand();
+it('can map string ports', function () {
+    $command = $this->container
+        ->mapPort('127.0.0.1:4848', 22)
+        ->mapPort('0.0.0.0:9000', 21)
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -p 4848:22 -p 9000:21 -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -p 127.0.0.1:4848:22 -p 0.0.0.0:9000:21 -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_map_string_ports()
-    {
-        $command = $this->container
-            ->mapPort('127.0.0.1:4848', 22)
-            ->mapPort('0.0.0.0:9000', 21)
-            ->getRunCommand();
+it('can set environment variables', function () {
+    $command = $this->container
+        ->setEnvironmentVariable('NAME', 'VALUE')
+        ->setEnvironmentVariable('NAME2', 'VALUE2')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -p 127.0.0.1:4848:22 -p 0.0.0.0:9000:21 -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -e NAME=VALUE -e NAME2=VALUE2 -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_set_environment_variables()
-    {
-        $command = $this->container
-            ->setEnvironmentVariable('NAME', 'VALUE')
-            ->setEnvironmentVariable('NAME2', 'VALUE2')
-            ->getRunCommand();
+it('can set volumes', function () {
+    $command = $this->container
+        ->setVolume('/on/my/host', '/on/my/container')
+        ->setVolume('/data', '/data')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -e NAME=VALUE -e NAME2=VALUE2 -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -v /on/my/host:/on/my/container -v /data:/data -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_set_volumes()
-    {
-        $command = $this->container
-            ->setVolume('/on/my/host', '/on/my/container')
-            ->setVolume('/data', '/data')
-            ->getRunCommand();
+it('can set labels', function () {
+    $command = $this->container
+        ->setLabel('traefik.enable', 'true')
+        ->setLabel('foo', 'bar')
+        ->setLabel('name', 'spatie')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -v /on/my/host:/on/my/container -v /data:/data -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -l traefik.enable=true -l foo=bar -l name=spatie -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_set_labels()
-    {
-        $command = $this->container
-            ->setLabel('traefik.enable', 'true')
-            ->setLabel('foo', 'bar')
-            ->setLabel('name', 'spatie')
-            ->getRunCommand();
+it('can set optional args', function () {
+    $command = $this->container
+        ->setOptionalArgs('-it', '-a', '-i', '-t')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -l traefik.enable=true -l foo=bar -l name=spatie -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -it -a -i -t -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_set_optional_args()
-    {
-        $command = $this->container
-            ->setOptionalArgs('-it', '-a', '-i', '-t')
-            ->getRunCommand();
+it('can set commands', function () {
+    $command = $this->container
+        ->setCommands('--api.insecure=true', '--entrypoints.web.address=:80')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -it -a -i -t -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -d --rm ninja/docker --api.insecure=true --entrypoints.web.address=:80');
+});
 
-    /** @test */
-    public function it_can_set_network()
-    {
-        $command = $this->container
-            ->network('my-network')
-            ->getRunCommand();
+it('can set network', function () {
+    $command = $this->container
+        ->network('my-network')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -d --rm --network my-network spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker run -d --rm --network my-network ninja/docker');
+});
 
-    /** @test */
-    public function it_can_use_remote_docker_host()
-    {
-        $command = $this->container
-            ->remoteHost('ssh://username@host')
-            ->getRunCommand();
+it('can use remote docker host', function () {
+    $command = $this->container
+        ->remoteHost('ssh://username@host')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker -H ssh://username@host run -d --rm spatie/docker', $command);
-    }
+    expect($command)->toEqual('docker -H ssh://username@host run -d --rm ninja/docker');
+});
 
-    /** @test */
-    public function it_can_execute_command_at_start()
-    {
-        $command = $this->container
-            ->command('whoami')
-            ->getRunCommand();
+it('can execute command at start', function () {
+    $command = $this->container
+        ->command('whoami')
+        ->getRunCommand("ninja/docker");
 
-        $this->assertEquals('docker run -d --rm spatie/docker whoami', $command);
-    }
+    expect($command)->toEqual('docker run -d --rm ninja/docker whoami');
+});
 
-    /** @test */
-    public function it_can_generate_stop_command()
-    {
-        $command = $this->container
-            ->getStopCommand('abcdefghijkl');
+it('can generate stop command', function () {
+    $command = $this->container
+        ->getStopCommand('ninja/docker');
 
-        $this->assertEquals('docker stop abcdefghijkl', $command);
-    }
+    expect($command)->toEqual('docker stop ninja/docker');
+});
 
-    /** @test */
-    public function it_can_generate_stop_command_with_remote_host()
-    {
-        $command = $this->container
-            ->remoteHost('ssh://username@host')
-            ->getStopCommand('abcdefghijkl');
+it('can generate stop command with remote host', function () {
+    $command = $this->container
+        ->remoteHost('ssh://username@host')
+        ->getStopCommand('ninja/docker');
 
-        $this->assertEquals('docker -H ssh://username@host stop abcdefghijkl', $command);
-    }
+    expect($command)->toEqual('docker -H ssh://username@host stop ninja/docker');
+});
 
-    /** @test */
-    public function it_can_generate_exec_command()
-    {
-        $command = $this->container
-            ->getExecCommand('abcdefghijkl', 'whoami');
+it('can generate exec command', function () {
+    $command = $this->container
+        ->getExecCommand('abcdefghijkl', 'whoami');
 
-        $this->assertEquals('echo "whoami" | docker exec --interactive abcdefghijkl bash -', $command);
-    }
+    expect($command)->toEqual('echo "whoami" | docker exec --interactive abcdefghijkl bash -');
+});
 
-    /** @test */
-    public function it_can_generate_exec_command_with_remote_host()
-    {
-        $command = $this->container
-            ->remoteHost('ssh://username@host')
-            ->getExecCommand('abcdefghijkl', 'whoami');
+it('can generate exec command with remote host', function () {
+    $command = $this->container
+        ->remoteHost('ssh://username@host')
+        ->getExecCommand('abcdefghijkl', 'whoami');
 
-        $this->assertEquals('echo "whoami" | docker -H ssh://username@host exec --interactive abcdefghijkl bash -', $command);
-    }
+    expect($command)->toEqual('echo "whoami" | docker -H ssh://username@host exec --interactive abcdefghijkl bash -');
+});
 
-    /** @test */
-    public function it_can_generate_exec_command_with_custom_shell()
-    {
-        $command = $this->container
-            ->shell('sh')
-            ->getExecCommand('abcdefghijkl', 'whoami');
+it('can generate exec command with custom shell', function () {
+    $command = $this->container
+        ->shell('sh')
+        ->getExecCommand('abcdefghijkl', 'whoami');
 
-        $this->assertEquals('echo "whoami" | docker exec --interactive abcdefghijkl sh -', $command);
-    }
+    expect($command)->toEqual('echo "whoami" | docker exec --interactive abcdefghijkl sh -');
+});
 
-    /** @test */
-    public function it_can_generate_copy_command()
-    {
-        $command = $this->container
-            ->getCopyCommand('abcdefghijkl', '/home/spatie', '/mnt/spatie');
+it('can generate copy command', function () {
+    $command = $this->container
+        ->getCopyCommand('abcdefghijkl', '/home/spatie', '/mnt/spatie');
 
-        $this->assertEquals('docker cp /home/spatie abcdefghijkl:/mnt/spatie', $command);
-    }
+    expect($command)->toEqual('docker cp /home/spatie abcdefghijkl:/mnt/spatie');
+});
 
-    /** @test */
-    public function it_can_generate_copy_command_with_remote_host()
-    {
-        $command = $this->container
-            ->remoteHost('ssh://username@host')
-            ->getCopyCommand('abcdefghijkl', '/home/spatie', '/mnt/spatie');
+it('can generate copy command with remote host', function () {
+    $command = $this->container
+        ->remoteHost('ssh://username@host')
+        ->getCopyCommand('abcdefghijkl', '/home/spatie', '/mnt/spatie');
 
-        $this->assertEquals('docker -H ssh://username@host cp /home/spatie abcdefghijkl:/mnt/spatie', $command);
-    }
-}
+    expect($command)->toEqual('docker -H ssh://username@host cp /home/spatie abcdefghijkl:/mnt/spatie');
+});
+
+it('has a default start command timeout of 60s', function () {
+    expect($this->container->getStartCommandTimeout())->toEqual(60);
+});
+
+it('can set a custom start command timeout', function () {
+    $return = $this->container->setStartCommandTimeout(3600);
+
+    expect($this->container->getStartCommandTimeout())->toEqual(3600);
+    expect($return)->toEqual($this->container);
+});

@@ -14,9 +14,9 @@ class DockerContainerInstance
     public const DEFAULT_PATH_AUTHORIZED_KEYS = '/root/.ssh/authorized_keys';
 
     public function __construct(
-        private DockerContainer $config,
-        private string $dockerIdentifier,
-        private string $name
+        private readonly DockerContainer $config,
+        private readonly string $dockerIdentifier,
+        private readonly string $name
     ) {
     }
 
@@ -79,12 +79,7 @@ class DockerContainerInstance
         return substr($this->dockerIdentifier, 0, 12);
     }
 
-    /**
-     * @param array|string $command
-     * @param bool $async
-     * @return Process
-     */
-    public function execute(array|string $command, bool $async = false): Process
+    public function execute(array|string $command, bool $async = false, ?float $timeout = 60): Process
     {
         if (is_array($command)) {
             $command = implode(';', $command);
@@ -93,6 +88,7 @@ class DockerContainerInstance
         $fullCommand = $this->config->getExecCommand($this->getShortDockerIdentifier(), $command);
 
         $process = Process::fromShellCommandline($fullCommand);
+        $process->setTimeout($timeout);
 
         $async ? $process->start() : $process->run();
 

@@ -1,8 +1,8 @@
-<?php
+<?php //phpcs:ignore
 
 namespace Ninja\Docker;
 
-class VolumeMapping
+readonly class VolumeMapping
 {
     public function __construct(private string $pathOnHost, private string $pathOnDocker)
     {
