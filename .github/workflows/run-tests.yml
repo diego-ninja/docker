@@ -46,9 +46,6 @@ jobs:
         run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
       - name: Execute tests
-        run: vendor/bin/pest
-
-      - name: Execute coverage
         run: vendor/bin/pest --coverage-html coverage
 
       - name: Upload Coverage to Coveralls
@@ -58,4 +55,4 @@ jobs:
         run: |
           rm -rf composer.* vendor/
           composer require php-coveralls/php-coveralls
-          vendor/bin/php-coveralls
+          vendor/bin/php-coveralls --coverage_clover=coverage/coverage.xml -v
