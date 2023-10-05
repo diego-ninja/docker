@@ -40,7 +40,7 @@ class DockerContainerInstance
 
         $process->run();
 
-        return !empty(trim($process->getOutput()));
+        return ! empty(trim($process->getOutput()));
     }
 
     public function __destruct()
