@@ -32,6 +32,17 @@ class DockerContainerInstance
         );
     }
 
+    public static function isRunning(string $name): bool
+    {
+        $process = Process::fromShellCommandline(
+            sprintf('docker ps -q -f name=%s', $name)
+        );
+
+        $process->run();
+
+        return !empty(trim($process->getOutput()));
+    }
+
     public function __destruct()
     {
         if ($this->config->stopOnDestruct) {
