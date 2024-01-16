@@ -4,6 +4,7 @@ use Ninja\Docker\DockerContainer;
 use Ninja\Docker\DockerContainerInstance;
 use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
 use Spatie\Ssh\Ssh;
+use Symfony\Component\Process\Process;
 
 beforeEach(function () {
     $this->container = (new DockerContainer('spatie/docker'))
@@ -12,7 +13,7 @@ beforeEach(function () {
         ->stopOnDestruct();
 
     $this->ssh = (new Ssh('root', '0.0.0.0', 4848))
-        ->usePrivateKey(__DIR__.'/keys/spatie_docker_package_id_rsa');
+        ->usePrivateKey(__DIR__ . '/keys/spatie_docker_package_id_rsa');
 });
 
 it('can start a container', function () {
@@ -27,7 +28,7 @@ it('a public key can be added to a running container', function () {
         ->mapPort(4848, 22)
         ->stopOnDestruct()
         ->start()
-        ->addPublicKey(__DIR__.'/keys/spatie_docker_package_id_rsa.pub');
+        ->addPublicKey(__DIR__ . '/keys/spatie_docker_package_id_rsa.pub');
 
     $process = $this->ssh->execute('whoami');
 
@@ -38,8 +39,8 @@ it('a public key can be added to a running container', function () {
 
 it('files can be added to the container', function () {
     $container = $this->container->start()
-        ->addPublicKey(__DIR__.'/keys/spatie_docker_package_id_rsa.pub')
-        ->addFiles(__DIR__.'/stubs', '/test');
+        ->addPublicKey(__DIR__ . '/keys/spatie_docker_package_id_rsa.pub')
+        ->addFiles(__DIR__ . '/stubs', '/test');
 
     $process = $this->ssh->execute([
         'cd /test',
@@ -66,7 +67,7 @@ it('will throw an exception if the container could not start', function () {
 
 it('the docker container is macroable', function () {
     DockerContainerInstance::macro('whoAmI', function () {
-        /** @var \Symfony\Component\Process\Process $process */
+        /** @var Process $process */
         $process = $this->execute('whoami');
 
         return trim($process->getOutput());

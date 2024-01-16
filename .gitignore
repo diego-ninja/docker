@@ -8,3 +8,6 @@ coverage
 .php-cs-fixer.cache
 .idea
 tester.php
+captainhook.json
+conventional-commits.json
+
