@@ -2,11 +2,9 @@
 
 namespace Ninja\Docker;
 
-class PortMapping
+readonly class PortMapping
 {
-    public function __construct(private int|string $portOnHost, private int $portOnDocker)
-    {
-    }
+    public function __construct(private int|string $portOnHost, private int $portOnDocker) {}
 
     public function __toString()
     {

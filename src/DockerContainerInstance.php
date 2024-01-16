@@ -3,6 +3,7 @@
 namespace Ninja\Docker;
 
 use JsonException;
+use RuntimeException;
 use Spatie\Macroable\Macroable;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -17,8 +18,7 @@ class DockerContainerInstance
         private readonly DockerContainer $config,
         private readonly string $dockerIdentifier,
         private readonly string $name
-    ) {
-    }
+    ) {}
 
     public static function fromExisting(string $name): self
     {
@@ -53,7 +53,7 @@ class DockerContainerInstance
     public function start(bool $async = false): Process
     {
         $fullCommand = $this->config->getStartCommand($this->getShortDockerIdentifier());
-        $process = Process::fromShellCommandline($fullCommand);
+        $process     = Process::fromShellCommandline($fullCommand);
 
         $async ? $process->start() : $process->run();
 
@@ -63,7 +63,7 @@ class DockerContainerInstance
     public function stop(bool $async = false): Process
     {
         $fullCommand = $this->config->getStopCommand($this->getShortDockerIdentifier());
-        $process = Process::fromShellCommandline($fullCommand);
+        $process     = Process::fromShellCommandline($fullCommand);
 
         $async ? $process->start() : $process->run();
 
@@ -90,6 +90,12 @@ class DockerContainerInstance
         return substr($this->dockerIdentifier, 0, 12);
     }
 
+    /**
+     * @param string[]|string $command
+     * @param bool $async
+     * @param float|null $timeout
+     * @return Process
+     */
     public function execute(array|string $command, bool $async = false, ?float $timeout = 60): Process
     {
         if (is_array($command)) {
@@ -106,14 +112,20 @@ class DockerContainerInstance
         return $process;
     }
 
-
     public function addPublicKey(
         string $pathToPublicKey,
         string $pathToAuthorizedKeys = self::DEFAULT_PATH_AUTHORIZED_KEYS
     ): self {
-        $publicKeyContents = trim(file_get_contents($pathToPublicKey));
+        $contents = file_get_contents($pathToPublicKey);
+        if ($contents === false) {
+            throw new RuntimeException(
+                sprintf("Could not read contents of public key at `%s`", $pathToPublicKey)
+            );
+        }
 
-        $this->execute('echo \''.$publicKeyContents.'\' >> '.$pathToAuthorizedKeys);
+        $publicKeyContents = trim($contents);
+
+        $this->execute('echo \'' . $publicKeyContents . '\' >> ' . $pathToAuthorizedKeys);
 
         $this->execute("chmod 600 {$pathToAuthorizedKeys}");
         $this->execute("chown root:root {$pathToAuthorizedKeys}");
@@ -129,7 +141,7 @@ class DockerContainerInstance
 
         $process->run();
 
-        if (! $process->isSuccessful()) {
+        if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
@@ -137,6 +149,7 @@ class DockerContainerInstance
     }
 
     /**
+     * @return array<string, mixed>
      * @throws JsonException
      */
     public function inspect(): array

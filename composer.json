@@ -1,12 +1,11 @@
 {
     "name": "diego-ninja/docker",
     "description": "Run and manage docker containers in your php code",
+    "license": "MIT",
     "keywords": [
         "ninja",
         "docker"
     ],
-    "homepage": "https://github.com/diego-ninja/docker",
-    "license": "MIT",
     "authors": [
         {
             "name": "Ruben Van Assche",
@@ -27,14 +26,24 @@
             "role": "Developer"
         }
     ],
+    "homepage": "https://github.com/diego-ninja/docker",
     "require": {
         "php": "^8.2",
         "spatie/macroable": "^2.0",
-        "symfony/process": "^6.0"
+        "symfony/process": "^6.0 || ^7.0"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
+        "captainhook/captainhook": "^5.10",
+        "captainhook/plugin-composer": "^5.3",
+        "ergebnis/composer-normalize": "^2.30",
+        "friendsofphp/php-cs-fixer": "^3.40",
+        "icanhazstring/composer-unused": "^0.8.7",
+        "maglnet/composer-require-checker": "^4.5",
         "pestphp/pest": "^1.22",
+        "php-parallel-lint/php-console-highlighter": "^1.0",
+        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "phpstan/extension-installer": "^1.3",
+        "phpstan/phpstan": "^1.10",
         "spatie/ssh": "^1.7.0",
         "symfony/var-dumper": "^5.3"
     },
@@ -48,15 +57,38 @@
             "Ninja\\Docker\\Tests\\": "tests"
         }
     },
-    "scripts": {
-        "test": "chmod -R 700 tests/keys && vendor/bin/pest",
-        "build-docker": "docker build -t spatie/docker ./tests/docker",
-        "test-coverage": "vendor/bin/pest --coverage-html coverage"
-    },
     "config": {
-        "sort-packages": true,
         "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
+            "captainhook/plugin-composer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true,
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "build-docker": "docker build -t ninja/docker ./tests/docker",
+        "test": "chmod -R 700 tests/keys && vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage-html coverage",
+        "deps": "@dev:deps",
+        "dev:analyze": [
+            "@dev:analyze:phpstan"
+        ],
+        "dev:analyze:phpstan": "phpstan",
+        "dev:build:clean": "git clean -fX builds/",
+        "dev:deps": [
+            "@dev:deps:missing",
+            "@dev:deps:unused"
+        ],
+        "dev:deps:missing": "php vendor/bin/composer-require-checker",
+        "dev:deps:unused": "php vendor/bin/composer-unused",
+        "dev:lint": [
+            "@dev:lint:syntax",
+            "@dev:lint:style"
+        ],
+        "dev:lint:fix": "php-cs-fixer fix --config .php-cs-fixer.php",
+        "dev:lint:style": "php-cs-fixer check --config .php-cs-fixer.php",
+        "dev:lint:syntax": "parallel-lint --colors src/ tests/"
     }
 }

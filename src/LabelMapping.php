@@ -2,11 +2,9 @@
 
 namespace Ninja\Docker;
 
-class LabelMapping
+readonly class LabelMapping
 {
-    public function __construct(private string $name, private string $value)
-    {
-    }
+    public function __construct(private string $name, private string $value) {}
 
     public function __toString()
     {

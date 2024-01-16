@@ -6,11 +6,11 @@ use Exception;
 use Ninja\Docker\DockerContainer;
 use Symfony\Component\Process\Process;
 
-class CouldNotStartDockerContainer extends Exception
+final class CouldNotStartDockerContainer extends Exception
 {
-    public static function processFailed(DockerContainer $container, Process $process): static
+    public static function processFailed(DockerContainer $container, Process $process): self
     {
-        return new static(
+        return new self(
             message:  sprintf(
                 "Could not start docker container for image %s`. Process output: `%s`",
                 $container->image,

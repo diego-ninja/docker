@@ -38,16 +38,19 @@ class DockerContainer
 
     public string $command = '';
 
+    /** @var string[] */
     public array $optionalArgs = [];
 
+    /** @var string[] */
     public array $commands = [];
 
     protected float $startCommandTimeout = 60;
 
-    public function __construct(public string $image, public string $name = '')
-    {
-    }
+    final public function __construct(public string $image, public string $name = '') {}
 
+    /**
+     * @param string ...$args
+     */
     public static function create(...$args): self
     {
         return new static(...$args);
@@ -144,6 +147,9 @@ class DockerContainer
         return $this;
     }
 
+    /**
+     * @param string ...$args
+     */
     public function setOptionalArgs(...$args): self
     {
         $this->optionalArgs = $args;
@@ -151,6 +157,9 @@ class DockerContainer
         return $this;
     }
 
+    /**
+     * @param string ...$args
+     */
     public function setCommands(...$args): self
     {
         $this->commands = $args;
@@ -286,7 +295,7 @@ class DockerContainer
             $process->run();
         }
 
-        if (! $process->isSuccessful()) {
+        if (!$process->isSuccessful()) {
             throw CouldNotStartDockerContainer::processFailed($this, $process);
         }
 
@@ -311,6 +320,9 @@ class DockerContainer
         return $this->startCommandTimeout;
     }
 
+    /**
+     * @return string[]
+     */
     protected function getExtraOptions(): array
     {
         $extraOptions = [];
@@ -358,6 +370,9 @@ class DockerContainer
         return $extraOptions;
     }
 
+    /**
+     * @return string[]
+     */
     protected function getExtraDockerOptions(): array
     {
         $extraDockerOptions = [];
