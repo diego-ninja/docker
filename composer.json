@@ -69,8 +69,6 @@
     },
     "scripts": {
         "build-docker": "docker build -t ninja/docker ./tests/docker",
-        "test": "chmod -R 700 tests/keys && vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage-html coverage",
         "deps": "@dev:deps",
         "dev:analyze": [
             "@dev:analyze:phpstan"
@@ -89,6 +87,8 @@
         ],
         "dev:lint:fix": "php-cs-fixer fix --config .php-cs-fixer.php",
         "dev:lint:style": "php-cs-fixer check --config .php-cs-fixer.php",
-        "dev:lint:syntax": "parallel-lint --colors src/ tests/"
+        "dev:lint:syntax": "parallel-lint --colors src/ tests/",
+        "test": "chmod -R 700 tests/keys && vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage-html coverage"
     }
 }
