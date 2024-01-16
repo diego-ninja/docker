@@ -5,6 +5,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/docker)
 ![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/docker.svg?style=flat)
 [![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/7c91e5ba-b5fb-41e1-8692-0bb6a2f1e0e6.svg)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/7c91e5ba-b5fb-41e1-8692-0bb6a2f1e0e6)
+[![PHPStan Level 8](https://img.shields.io/badge/PHPStan-level%208-blue.svg)](https://github.com/diego-ninja/docker/blob/main/.github/workflows/static-code-analysis.yml)
 [![License](https://poser.pugx.org/diego-ninja/docker/license)](https://packagist.org/packages/diego-ninja/docker)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/diego-ninja/docker/run-tests.yml?label=tests)](https://github.com/diego-ninja/docker/actions?query=workflow%3Arun-tests+branch%3Amain)
 
