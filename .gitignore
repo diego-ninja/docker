@@ -10,4 +10,5 @@ coverage
 tester.php
 captainhook.json
 conventional-commits.json
+.worktrees/
 
