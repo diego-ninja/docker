@@ -1,15 +1,21 @@
 <?php
 
-//phpcs:ignore
+// ABOUTME: Represents a volume mount between host filesystem and container.
+// ABOUTME: Formats volume mapping for Docker CLI commands.
+
+declare(strict_types=1);
 
 namespace Ninja\Docker;
 
-readonly class VolumeMapping
+final readonly class VolumeMapping
 {
-    public function __construct(private string $pathOnHost, private string $pathOnDocker) {}
+    public function __construct(
+        public string $pathOnHost,
+        public string $pathOnDocker,
+    ) {}
 
-    public function __toString()
+    public function __toString(): string
     {
-        return sprintf("-v %s:%s", $this->pathOnHost, $this->pathOnDocker);
+        return "-v {$this->pathOnHost}:{$this->pathOnDocker}";
     }
 }
