@@ -13,6 +13,7 @@ return (new PhpCsFixer\Config())
     ->setRules([
         '@PER'                                        => true,
         'align_multiline_comment'                     => ['comment_type' => 'all_multiline'],
+        'declare_strict_types'                        => true,
         'array_indentation'                           => true,
         'array_syntax'                                => ['syntax' => 'short'],
         'binary_operator_spaces'                      => ['default' => 'align_single_space_minimal', 'operators' => [], ],
