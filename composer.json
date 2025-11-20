@@ -89,6 +89,7 @@
         "dev:lint:style": "php-cs-fixer check --config .php-cs-fixer.php",
         "dev:lint:syntax": "parallel-lint --colors src/ tests/",
         "test": "chmod -R 700 tests/keys && vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage-html coverage"
+        "test:coverage": "vendor/bin/pest --coverage-clover coverage/clover.xml --coverage-html coverage/html --coverage-text coverage/coverage.txt",
+        "test:coverage-clover": "vendor/bin/pest --coverage-clover coverage/clover.xml"
     }
 }
