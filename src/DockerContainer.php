@@ -53,12 +53,9 @@ class DockerContainer
 
     final public function __construct(public string $image, public string $name = '') {}
 
-    /**
-     * @param string ...$args
-     */
-    public static function create(...$args): self
+    public static function create(string $image, string $name = ''): self
     {
-        return new static(...$args);
+        return new static($image, $name);
     }
 
     public function image(string $image): self
@@ -154,20 +151,22 @@ class DockerContainer
 
     /**
      * @param string ...$args
+     * @return self
      */
-    public function setOptionalArgs(...$args): self
+    public function setOptionalArgs(string ...$args): self
     {
-        $this->optionalArgs = $args;
+        $this->optionalArgs = array_values($args);
 
         return $this;
     }
 
     /**
      * @param string ...$args
+     * @return self
      */
-    public function setCommands(...$args): self
+    public function setCommands(string ...$args): self
     {
-        $this->commands = $args;
+        $this->commands = array_values($args);
 
         return $this;
     }
@@ -282,6 +281,8 @@ class DockerContainer
     }
 
     /**
+     * @param callable(Process): void|null $callback
+     * @return DockerContainerInstance
      * @throws CouldNotStartDockerContainer
      */
     public function start(?callable $callback = null): DockerContainerInstance
