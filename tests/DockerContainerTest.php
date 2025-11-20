@@ -1,5 +1,8 @@
 <?php
 
+// ABOUTME: Tests for DockerContainer configuration and command generation.
+// ABOUTME: Validates fluent API and Docker CLI command building.
+
 declare(strict_types=1);
 
 use Ninja\Docker\DockerContainer;

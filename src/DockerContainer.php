@@ -1,5 +1,10 @@
 <?php
 
+// ABOUTME: Configures and manages Docker container lifecycle and execution settings.
+// ABOUTME: Provides fluent API for container configuration before starting instances.
+
+declare(strict_types=1);
+
 namespace Ninja\Docker;
 
 use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
@@ -18,16 +23,16 @@ class DockerContainer
 
     public ?string $network = null;
 
-    /** @var PortMapping[] */
+    /** @var list<PortMapping> */
     public array $portMappings = [];
 
-    /** @var EnvironmentMapping[] */
+    /** @var list<EnvironmentMapping> */
     public array $environmentMappings = [];
 
-    /** @var VolumeMapping[] */
+    /** @var list<VolumeMapping> */
     public array $volumeMappings = [];
 
-    /** @var LabelMapping[] */
+    /** @var list<LabelMapping> */
     public array $labelMappings = [];
 
     public bool $cleanUpAfterExit = true;
@@ -38,10 +43,10 @@ class DockerContainer
 
     public string $command = '';
 
-    /** @var string[] */
+    /** @var list<string> */
     public array $optionalArgs = [];
 
-    /** @var string[] */
+    /** @var list<string> */
     public array $commands = [];
 
     protected float $startCommandTimeout = 60;
@@ -321,7 +326,7 @@ class DockerContainer
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     protected function getExtraOptions(): array
     {
@@ -371,7 +376,7 @@ class DockerContainer
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     protected function getExtraDockerOptions(): array
     {
