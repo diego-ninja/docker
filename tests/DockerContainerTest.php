@@ -202,3 +202,55 @@ it('can set a custom start command timeout', function () {
     expect($this->container->getStartCommandTimeout())->toEqual(3600);
     expect($return)->toEqual($this->container);
 });
+
+it('can get inspect command', function () {
+    $command = $this->container->getInspectCommand('abcdefghijkl');
+
+    expect($command)->toEqual('docker inspect abcdefghijkl');
+});
+
+it('can get inspect command with remote host', function () {
+    $command = $this->container
+        ->remoteHost('ssh://username@host')
+        ->getInspectCommand('abcdefghijkl');
+
+    expect($command)->toEqual('docker -H ssh://username@host inspect abcdefghijkl');
+});
+
+it('can change image', function () {
+    $this->container->image('new-image');
+
+    expect($this->container->image)->toEqual('new-image');
+});
+
+it('can toggle daemonize', function () {
+    $this->container->daemonize(false);
+
+    expect($this->container->daemonize)->toBeFalse();
+});
+
+it('can toggle clean up after exit', function () {
+    $this->container->cleanUpAfterExit(false);
+
+    expect($this->container->cleanUpAfterExit)->toBeFalse();
+});
+
+it('can toggle stop on destruct', function () {
+    $this->container->stopOnDestruct(true);
+
+    expect($this->container->stopOnDestruct)->toBeTrue();
+});
+
+it('can generate start command', function () {
+    $command = $this->container->getStartCommand('abcdefghijkl');
+
+    expect($command)->toEqual('docker start abcdefghijkl');
+});
+
+it('can generate start command with remote host', function () {
+    $command = $this->container
+        ->remoteHost('ssh://username@host')
+        ->getStartCommand('abcdefghijkl');
+
+    expect($command)->toEqual('docker -H ssh://username@host start abcdefghijkl');
+});
