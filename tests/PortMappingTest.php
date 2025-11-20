@@ -1,5 +1,8 @@
 <?php
 
+// ABOUTME: Tests for port mapping configuration and string formatting.
+// ABOUTME: Validates Docker CLI port flag generation.
+
 declare(strict_types=1);
 
 use Ninja\Docker\PortMapping;
