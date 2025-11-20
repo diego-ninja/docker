@@ -2,6 +2,35 @@
 
 All notable changes to `docker` will be documented in this file
 
+## 2.0.0 - 2025-11-20
+
+### Breaking Changes
+- **Minimum PHP version is now 8.4** (dropped support for PHP < 8.4)
+- All classes now use `declare(strict_types=1)`
+- Minimum Symfony Process version is now 7.0
+- All mapping classes are now `final readonly`
+
+### Added
+- Full PHP 8.4 compatibility with modern language features
+- PHPStan level 10 compliance (strictest static analysis)
+- Comprehensive type declarations throughout codebase
+- ABOUTME documentation comments in all files
+- 88% test coverage (up from ~50%)
+- Container cleanup helpers in integration tests
+
+### Changed
+- Upgraded to Pest v3 for testing
+- Enhanced type safety with precise PHPDoc annotations (`list<Type>` instead of `array`)
+- Improved error handling with explicit exception types
+- All files now enforce strict types
+- Complete `@throws` annotations for exception-throwing methods
+
+### Technical
+- PHPStan checks for missing iterable value types and generic class types
+- Used `array_values()` in variadic methods to ensure proper list types
+- Added type assertions for `json_decode()` results
+- Modernized all mapping classes (PortMapping, VolumeMapping, EnvironmentMapping, LabelMapping)
+
 ## 1.11.0 - 2023-05-15
 
 ### What's Changed

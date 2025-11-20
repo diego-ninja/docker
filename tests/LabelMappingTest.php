@@ -1,5 +1,10 @@
 <?php
 
+// ABOUTME: Tests for label mapping configuration and string formatting.
+// ABOUTME: Validates Docker CLI label flag generation.
+
+declare(strict_types=1);
+
 use Ninja\Docker\LabelMapping;
 
 it('should convert to a string correctly', function () {

@@ -1,5 +1,10 @@
 <?php
 
+// ABOUTME: Configures and manages Docker container lifecycle and execution settings.
+// ABOUTME: Provides fluent API for container configuration before starting instances.
+
+declare(strict_types=1);
+
 namespace Ninja\Docker;
 
 use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
@@ -18,16 +23,16 @@ class DockerContainer
 
     public ?string $network = null;
 
-    /** @var PortMapping[] */
+    /** @var list<PortMapping> */
     public array $portMappings = [];
 
-    /** @var EnvironmentMapping[] */
+    /** @var list<EnvironmentMapping> */
     public array $environmentMappings = [];
 
-    /** @var VolumeMapping[] */
+    /** @var list<VolumeMapping> */
     public array $volumeMappings = [];
 
-    /** @var LabelMapping[] */
+    /** @var list<LabelMapping> */
     public array $labelMappings = [];
 
     public bool $cleanUpAfterExit = true;
@@ -38,22 +43,19 @@ class DockerContainer
 
     public string $command = '';
 
-    /** @var string[] */
+    /** @var list<string> */
     public array $optionalArgs = [];
 
-    /** @var string[] */
+    /** @var list<string> */
     public array $commands = [];
 
     protected float $startCommandTimeout = 60;
 
     final public function __construct(public string $image, public string $name = '') {}
 
-    /**
-     * @param string ...$args
-     */
-    public static function create(...$args): self
+    public static function create(string $image, string $name = ''): self
     {
-        return new static(...$args);
+        return new static($image, $name);
     }
 
     public function image(string $image): self
@@ -149,20 +151,22 @@ class DockerContainer
 
     /**
      * @param string ...$args
+     * @return self
      */
-    public function setOptionalArgs(...$args): self
+    public function setOptionalArgs(string ...$args): self
     {
-        $this->optionalArgs = $args;
+        $this->optionalArgs = array_values($args);
 
         return $this;
     }
 
     /**
      * @param string ...$args
+     * @return self
      */
-    public function setCommands(...$args): self
+    public function setCommands(string ...$args): self
     {
-        $this->commands = $args;
+        $this->commands = array_values($args);
 
         return $this;
     }
@@ -277,6 +281,8 @@ class DockerContainer
     }
 
     /**
+     * @param callable(Process): void|null $callback
+     * @return DockerContainerInstance
      * @throws CouldNotStartDockerContainer
      */
     public function start(?callable $callback = null): DockerContainerInstance
@@ -321,7 +327,7 @@ class DockerContainer
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     protected function getExtraOptions(): array
     {
@@ -371,7 +377,7 @@ class DockerContainer
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     protected function getExtraDockerOptions(): array
     {

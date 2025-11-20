@@ -1,12 +1,30 @@
 <?php
 
+// ABOUTME: Integration tests for Docker container lifecycle and operations.
+// ABOUTME: Tests real Docker commands, file operations, and SSH key management.
+
+declare(strict_types=1);
+
 use Ninja\Docker\DockerContainer;
 use Ninja\Docker\DockerContainerInstance;
 use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
 use Spatie\Ssh\Ssh;
 use Symfony\Component\Process\Process;
 
+/**
+ * Ensures a container is stopped and removed to prevent conflicts.
+ */
+function ensureContainerStopped(string $name): void
+{
+    $process = Process::fromShellCommandline(
+        sprintf('docker rm -f %s 2>/dev/null || true', $name)
+    );
+    $process->run();
+}
+
 beforeEach(function () {
+    // Clean up any existing container with this name
+    ensureContainerStopped('spatie_docker_test');
     $this->container = (new DockerContainer('spatie/docker'))
         ->name('spatie_docker_test')
         ->mapPort(4848, 22)

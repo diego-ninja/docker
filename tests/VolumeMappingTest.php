@@ -1,5 +1,8 @@
 <?php
 
+// ABOUTME: Tests for volume mapping configuration and string formatting.
+// ABOUTME: Validates Docker CLI volume flag generation.
+
 declare(strict_types=1);
 
 use Ninja\Docker\VolumeMapping;

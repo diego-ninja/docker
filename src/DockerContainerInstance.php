@@ -1,5 +1,10 @@
 <?php
 
+// ABOUTME: Represents a running Docker container instance with execution capabilities.
+// ABOUTME: Provides methods to execute commands, manage files, and inspect container state.
+
+declare(strict_types=1);
+
 namespace Ninja\Docker;
 
 use JsonException;
@@ -91,7 +96,7 @@ class DockerContainerInstance
     }
 
     /**
-     * @param string[]|string $command
+     * @param list<string>|string $command
      * @param bool $async
      * @param float|null $timeout
      * @return Process
@@ -112,6 +117,12 @@ class DockerContainerInstance
         return $process;
     }
 
+    /**
+     * @param string $pathToPublicKey
+     * @param string $pathToAuthorizedKeys
+     * @return self
+     * @throws RuntimeException
+     */
     public function addPublicKey(
         string $pathToPublicKey,
         string $pathToAuthorizedKeys = self::DEFAULT_PATH_AUTHORIZED_KEYS
@@ -133,6 +144,12 @@ class DockerContainerInstance
         return $this;
     }
 
+    /**
+     * @param string $fileOrDirectoryOnHost
+     * @param string $pathInContainer
+     * @return self
+     * @throws ProcessFailedException
+     */
     public function addFiles(string $fileOrDirectoryOnHost, string $pathInContainer): self
     {
         $fullCommand = $this->config->getCopyCommand($this->getShortDockerIdentifier(), $fileOrDirectoryOnHost, $pathInContainer);
@@ -149,7 +166,7 @@ class DockerContainerInstance
     }
 
     /**
-     * @return array<string, mixed>
+     * @return list<array<string, mixed>>
      * @throws JsonException
      */
     public function inspect(): array
@@ -161,7 +178,10 @@ class DockerContainerInstance
 
         $json = trim($process->getOutput());
 
-        return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        /** @var list<array<string, mixed>> $result */
+        $result = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+
+        return $result;
     }
 
     private static function getImageFromExistingContainer(string $name): string

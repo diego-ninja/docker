@@ -1,13 +1,21 @@
 <?php
 
+// ABOUTME: Represents a label key-value pair for container metadata.
+// ABOUTME: Formats label for Docker CLI commands.
+
+declare(strict_types=1);
+
 namespace Ninja\Docker;
 
-readonly class LabelMapping
+final readonly class LabelMapping
 {
-    public function __construct(private string $name, private string $value) {}
+    public function __construct(
+        public string $name,
+        public string $value,
+    ) {}
 
-    public function __toString()
+    public function __toString(): string
     {
-        return sprintf("-l %s=%s", $this->name, $this->value);
+        return "-l {$this->name}={$this->value}";
     }
 }
