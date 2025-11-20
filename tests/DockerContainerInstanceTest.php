@@ -1,5 +1,10 @@
 <?php
 
+// ABOUTME: Tests for DockerContainerInstance execution and timeout configuration.
+// ABOUTME: Validates command execution behavior and process timeout handling.
+
+declare(strict_types=1);
+
 use Ninja\Docker\DockerContainer;
 use Ninja\Docker\DockerContainerInstance;
 
