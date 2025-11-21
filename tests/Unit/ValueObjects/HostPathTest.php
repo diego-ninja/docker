@@ -6,7 +6,7 @@ use Ninja\Docker\ValueObjects\HostPath;
 
 it('accepts existing readable paths', function () {
     $tempFile = tempnam(sys_get_temp_dir(), 'test');
-    $path = HostPath::from($tempFile);
+    $path     = HostPath::from($tempFile);
     expect($path->value)->toBe($tempFile);
     unlink($tempFile);
 });
@@ -44,7 +44,7 @@ it('rejects unreadable paths', function () {
 
 it('converts to string correctly', function () {
     $tempFile = tempnam(sys_get_temp_dir(), 'test');
-    $path = HostPath::from($tempFile);
-    expect((string) $path)->toBe($tempFile);
+    $path     = HostPath::from($tempFile);
+    expect((string)$path)->toBe($tempFile);
     unlink($tempFile);
 });

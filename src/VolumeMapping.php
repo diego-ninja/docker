@@ -16,6 +16,6 @@ final readonly class VolumeMapping
 
     public function __toString(): string
     {
-        return "-v {$this->pathOnHost}:{$this->pathOnDocker}";
+        return "{$this->pathOnHost}:{$this->pathOnDocker}";
     }
 }

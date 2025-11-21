@@ -26,5 +26,5 @@ it('rejects non-absolute paths', function (string $invalid) {
 
 it('converts to string correctly', function () {
     $path = ContainerPath::from('/app/data');
-    expect((string) $path)->toBe('/app/data');
+    expect((string)$path)->toBe('/app/data');
 });

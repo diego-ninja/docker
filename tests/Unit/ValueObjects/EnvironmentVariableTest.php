@@ -8,7 +8,7 @@ it('accepts valid environment variables', function (string $key, string $value) 
     $env = EnvironmentVariable::from($key, $value);
     expect($env->key)->toBe($key)
         ->and($env->value)->toBe($value)
-        ->and((string) $env)->toBe("{$key}={$value}");
+        ->and((string)$env)->toBe("{$key}={$value}");
 })->with([
     ['KEY', 'value'],
     ['DATABASE_URL', 'postgres://localhost'],
@@ -34,5 +34,5 @@ it('accepts empty values', function () {
 
 it('converts to string correctly', function () {
     $env = EnvironmentVariable::from('DATABASE_URL', 'postgres://localhost:5432');
-    expect((string) $env)->toBe('DATABASE_URL=postgres://localhost:5432');
+    expect((string)$env)->toBe('DATABASE_URL=postgres://localhost:5432');
 });

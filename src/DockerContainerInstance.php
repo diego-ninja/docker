@@ -17,7 +17,7 @@ class DockerContainerInstance
 {
     use Macroable;
 
-    public const DEFAULT_PATH_AUTHORIZED_KEYS = '/root/.ssh/authorized_keys';
+    public const string DEFAULT_PATH_AUTHORIZED_KEYS = '/root/.ssh/authorized_keys';
 
     public function __construct(
         private readonly DockerContainer $config,
@@ -39,9 +39,13 @@ class DockerContainerInstance
 
     public static function isRunning(string $name): bool
     {
-        $process = Process::fromShellCommandline(
-            sprintf('docker ps -q -f name=%s', $name)
-        );
+        $process = new Process([
+            'docker',
+            'ps',
+            '-q',
+            '-f',
+            "name={$name}",
+        ]);
 
         $process->run();
 
@@ -58,7 +62,7 @@ class DockerContainerInstance
     public function start(bool $async = false): Process
     {
         $fullCommand = $this->config->getStartCommand($this->getShortDockerIdentifier());
-        $process     = Process::fromShellCommandline($fullCommand);
+        $process     = new Process($fullCommand);
 
         $async ? $process->start() : $process->run();
 
@@ -68,7 +72,7 @@ class DockerContainerInstance
     public function stop(bool $async = false): Process
     {
         $fullCommand = $this->config->getStopCommand($this->getShortDockerIdentifier());
-        $process     = Process::fromShellCommandline($fullCommand);
+        $process     = new Process($fullCommand);
 
         $async ? $process->start() : $process->run();
 
@@ -109,7 +113,7 @@ class DockerContainerInstance
 
         $fullCommand = $this->config->getExecCommand($this->getShortDockerIdentifier(), $command);
 
-        $process = Process::fromShellCommandline($fullCommand);
+        $process = new Process($fullCommand);
         $process->setTimeout($timeout);
 
         $async ? $process->start() : $process->run();
@@ -154,7 +158,7 @@ class DockerContainerInstance
     {
         $fullCommand = $this->config->getCopyCommand($this->getShortDockerIdentifier(), $fileOrDirectoryOnHost, $pathInContainer);
 
-        $process = Process::fromShellCommandline($fullCommand);
+        $process = new Process($fullCommand);
 
         $process->run();
 
@@ -173,7 +177,7 @@ class DockerContainerInstance
     {
         $fullCommand = $this->config->getInspectCommand($this->getShortDockerIdentifier());
 
-        $process = Process::fromShellCommandline($fullCommand);
+        $process = new Process($fullCommand);
         $process->run();
 
         $json = trim($process->getOutput());
@@ -186,9 +190,13 @@ class DockerContainerInstance
 
     private static function getImageFromExistingContainer(string $name): string
     {
-        $process = Process::fromShellCommandline(
-            sprintf('docker ps --format="{{.Image}}" -f name=%s', $name)
-        );
+        $process = new Process([
+            'docker',
+            'ps',
+            '--format={{.Image}}',
+            '-f',
+            "name={$name}",
+        ]);
 
         $process->run();
 
@@ -197,9 +205,13 @@ class DockerContainerInstance
 
     private static function getIdFromExistingContainer(string $name): string
     {
-        $process = Process::fromShellCommandline(
-            sprintf('docker ps -q -f name=%s', $name)
-        );
+        $process = new Process([
+            'docker',
+            'ps',
+            '-q',
+            '-f',
+            "name={$name}",
+        ]);
 
         $process->run();
 

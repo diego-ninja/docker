@@ -53,5 +53,5 @@ it('rejects invalid image names', function (string $invalid) {
 
 it('converts to string correctly', function () {
     $image = ImageName::from('nginx:latest');
-    expect((string) $image)->toBe('nginx:latest');
+    expect((string)$image)->toBe('nginx:latest');
 });

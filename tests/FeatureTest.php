@@ -25,7 +25,7 @@ function ensureContainerStopped(string $name): void
 beforeEach(function () {
     // Clean up any existing container with this name
     ensureContainerStopped('spatie_docker_test');
-    $this->container = (new DockerContainer('spatie/docker'))
+    $this->container = DockerContainer::create('spatie/docker')
         ->name('spatie_docker_test')
         ->mapPort(4848, 22)
         ->stopOnDestruct();
@@ -41,7 +41,7 @@ it('can start a container', function () {
 });
 
 it('a public key can be added to a running container', function () {
-    $container = (new DockerContainer('spatie/docker'))
+    $container = DockerContainer::create('spatie/docker')
         ->name('spatie_docker_test')
         ->mapPort(4848, 22)
         ->stopOnDestruct()
@@ -80,7 +80,7 @@ it('files can be added to the container', function () {
 it('will throw an exception if the container could not start', function () {
     $this->expectException(CouldNotStartDockerContainer::class);
 
-    (new DockerContainer('non-existing-image'))->start();
+    DockerContainer::create('non-existing-image')->start();
 });
 
 it('the docker container is macroable', function () {
@@ -91,7 +91,7 @@ it('the docker container is macroable', function () {
         return trim($process->getOutput());
     });
 
-    $userName = (new DockerContainer('spatie/docker'))
+    $userName = DockerContainer::create('spatie/docker')
         ->name('spatie_docker_test')
         ->mapPort(4848, 22)
         ->stopOnDestruct()
@@ -102,7 +102,7 @@ it('the docker container is macroable', function () {
 });
 
 it('docker inspect information can be retrieved', function () {
-    $container = (new DockerContainer('spatie/docker'))
+    $container = DockerContainer::create('spatie/docker')
         ->name('spatie_docker_test')
         ->stopOnDestruct()
         ->start();

@@ -9,7 +9,7 @@ use Ninja\Docker\DockerContainer;
 use Ninja\Docker\DockerContainerInstance;
 
 beforeEach(function () {
-    $this->containerInstance = new DockerContainerInstance(new DockerContainer('spatie/docker'), '1234', 'test');
+    $this->containerInstance = new DockerContainerInstance(DockerContainer::create('spatie/docker'), '1234', 'test');
 });
 
 it('defaults process timeout to 60s', function () {

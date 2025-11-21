@@ -26,5 +26,5 @@ it('rejects invalid volume names', function (string $invalid) {
 
 it('converts to string correctly', function () {
     $volume = VolumeName::from('data-volume');
-    expect((string) $volume)->toBe('data-volume');
+    expect((string)$volume)->toBe('data-volume');
 });

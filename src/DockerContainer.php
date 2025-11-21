@@ -297,23 +297,27 @@ class DockerContainer
         return $this;
     }
 
-    public function getBaseCommand(): string
+    /**
+     * @return list<string>
+     */
+    public function getBaseCommand(): array
     {
-        $baseCommand = [
+        return [
             'docker',
             ...$this->getExtraDockerOptions(),
         ];
-
-        return implode(' ', $baseCommand);
     }
 
-    public function getRunCommand(): string
+    /**
+     * @return list<string>
+     */
+    public function getRunCommand(): array
     {
         $runCommand = [
-            $this->getBaseCommand(),
+            ...$this->getBaseCommand(),
             'run',
             ...$this->getExtraOptions(),
-            $this->image,
+            (string) $this->image,
             ...$this->commands,
         ];
 
@@ -321,68 +325,72 @@ class DockerContainer
             $runCommand[] = $this->command;
         }
 
-        return implode(' ', $runCommand);
+        return $runCommand;
     }
 
-    public function getStopCommand(string $dockerIdentifier): string
+    /**
+     * @return list<string>
+     */
+    public function getStopCommand(string $dockerIdentifier): array
     {
-        $stopCommand = [
-            $this->getBaseCommand(),
+        return [
+            ...$this->getBaseCommand(),
             'stop',
             $dockerIdentifier,
         ];
-
-        return implode(' ', $stopCommand);
     }
 
-    public function getStartCommand(string $dockerIdentifier): string
+    /**
+     * @return list<string>
+     */
+    public function getStartCommand(string $dockerIdentifier): array
     {
-        $startCommand = [
-            $this->getBaseCommand(),
+        return [
+            ...$this->getBaseCommand(),
             'start',
             $dockerIdentifier,
         ];
-
-        return implode(' ', $startCommand);
     }
 
-    public function getExecCommand(string $dockerIdentifier, string $command): string
+    /**
+     * @return list<string>
+     */
+    public function getExecCommand(string $dockerIdentifier, string $command): array
     {
-        $execCommand = [
-            "echo \"{$command}\"",
-            '|',
-            $this->getBaseCommand(),
+        return [
+            ...$this->getBaseCommand(),
             'exec',
             '--interactive',
             $dockerIdentifier,
             $this->shell,
-            '-',
+            '-c',
+            $command,
         ];
-
-        return implode(' ', $execCommand);
     }
 
-    public function getCopyCommand(string $dockerIdentifier, string $fileOrDirectoryOnHost, string $pathInContainer): string
+    /**
+     * @return list<string>
+     */
+    public function getCopyCommand(string $dockerIdentifier, string $fileOrDirectoryOnHost, string $pathInContainer): array
     {
-        $copyCommand = [
-            $this->getBaseCommand(),
+        return [
+            ...$this->getBaseCommand(),
             'cp',
             $fileOrDirectoryOnHost,
             "{$dockerIdentifier}:{$pathInContainer}",
         ];
-
-        return implode(' ', $copyCommand);
     }
 
-    public function getInspectCommand(string $dockerIdentifier): string
+    /**
+     * @return list<string>
+     */
+    public function getInspectCommand(string $dockerIdentifier): array
     {
-        $execCommand = [
-            $this->getBaseCommand(),
+        return [
+            ...$this->getBaseCommand(),
             'inspect',
             $dockerIdentifier,
         ];
-
-        return implode(' ', $execCommand);
     }
 
     /**
@@ -394,7 +402,7 @@ class DockerContainer
     {
         $command = $this->getRunCommand();
 
-        $process = Process::fromShellCommandline($command);
+        $process = new Process($command);
         $process->setTimeout($this->startCommandTimeout);
 
         if ($callback) {
@@ -439,39 +447,42 @@ class DockerContainer
         $extraOptions = [];
 
         if ($this->optionalArgs) {
-            $extraOptions[] = implode(' ', $this->optionalArgs);
+            array_push($extraOptions, ...$this->optionalArgs);
         }
 
-        if (count($this->_portMappings)) {
-            $mappings       = array_map(fn($mapping) => "-p {$mapping}", $this->_portMappings);
-            $extraOptions[] = implode(' ', $mappings);
+        foreach ($this->_portMappings as $mapping) {
+            $extraOptions[] = '-p';
+            $extraOptions[] = (string) $mapping;
         }
 
-        if (count($this->_environmentMappings)) {
-            $mappings       = array_map(fn($mapping) => "-e {$mapping}", $this->_environmentMappings);
-            $extraOptions[] = implode(' ', $mappings);
+        foreach ($this->_environmentMappings as $mapping) {
+            $extraOptions[] = '-e';
+            $extraOptions[] = (string) $mapping;
         }
 
-        if (count($this->_volumeMappings)) {
-            $extraOptions[] = implode(' ', $this->_volumeMappings);
+        foreach ($this->_volumeMappings as $mapping) {
+            $extraOptions[] = '-v';
+            $extraOptions[] = (string) $mapping;
         }
 
-        if (count($this->_bindMounts)) {
-            $mappings       = array_map(fn($mount) => "-v {$mount}", $this->_bindMounts);
-            $extraOptions[] = implode(' ', $mappings);
+        foreach ($this->_bindMounts as $mount) {
+            $extraOptions[] = '-v';
+            $extraOptions[] = (string) $mount;
         }
 
-        if (count($this->_namedVolumes)) {
-            $mappings       = array_map(fn($volume) => "-v {$volume}", $this->_namedVolumes);
-            $extraOptions[] = implode(' ', $mappings);
+        foreach ($this->_namedVolumes as $volume) {
+            $extraOptions[] = '-v';
+            $extraOptions[] = (string) $volume;
         }
 
-        if (count($this->_labelMappings)) {
-            $extraOptions[] = implode(' ', $this->_labelMappings);
+        foreach ($this->_labelMappings as $label) {
+            $extraOptions[] = '-l';
+            $extraOptions[] = (string) $label;
         }
 
         if ($this->name !== null) {
-            $extraOptions[] = "--name {$this->name}";
+            $extraOptions[] = '--name';
+            $extraOptions[] = (string) $this->name;
         }
 
         if ($this->daemonize) {
@@ -487,7 +498,8 @@ class DockerContainer
         }
 
         if ($this->network !== null) {
-            $extraOptions[] = '--network ' . $this->network;
+            $extraOptions[] = '--network';
+            $extraOptions[] = (string) $this->network;
         }
 
         return $extraOptions;
@@ -501,7 +513,8 @@ class DockerContainer
         $extraDockerOptions = [];
 
         if ($this->remoteHost !== null) {
-            $extraDockerOptions[] = "-H {$this->remoteHost}";
+            $extraDockerOptions[] = '-H';
+            $extraDockerOptions[] = (string) $this->remoteHost;
         }
 
         return $extraDockerOptions;

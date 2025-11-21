@@ -42,5 +42,5 @@ it('rejects ssh without host', function () {
 
 it('converts to string correctly', function () {
     $host = RemoteHost::from('tcp://192.168.1.1:2375');
-    expect((string) $host)->toBe('tcp://192.168.1.1:2375');
+    expect((string)$host)->toBe('tcp://192.168.1.1:2375');
 });

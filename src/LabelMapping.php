@@ -16,6 +16,6 @@ final readonly class LabelMapping
 
     public function __toString(): string
     {
-        return "-l {$this->name}={$this->value}";
+        return "{$this->name}={$this->value}";
     }
 }
