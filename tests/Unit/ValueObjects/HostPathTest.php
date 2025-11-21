@@ -16,6 +16,11 @@ it('accepts existing directories', function () {
     expect($path->value)->toBe(sys_get_temp_dir());
 });
 
+it('rejects empty string', function () {
+    expect(fn() => HostPath::from(''))
+        ->toThrow(\InvalidArgumentException::class, 'Host path cannot be empty');
+});
+
 it('rejects non-existent paths', function () {
     expect(fn() => HostPath::from('/nonexistent/path/to/nowhere'))
         ->toThrow(\InvalidArgumentException::class, 'does not exist');

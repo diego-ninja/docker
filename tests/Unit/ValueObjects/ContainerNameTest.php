@@ -31,5 +31,5 @@ it('rejects invalid container names', function (string $invalid, string $reason)
 
 it('converts to string correctly', function () {
     $name = ContainerName::from('test-container');
-    expect((string) $name)->toBe('test-container');
+    expect((string)$name)->toBe('test-container');
 });
