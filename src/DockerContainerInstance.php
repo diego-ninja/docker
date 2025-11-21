@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace Ninja\Docker;
 
 use JsonException;
+use Ninja\Docker\ValueObjects\ContainerPath;
+use Ninja\Docker\ValueObjects\HostPath;
 use RuntimeException;
 use Spatie\Macroable\Macroable;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -120,29 +122,33 @@ class DockerContainerInstance
         return $process->getOutput();
     }
 
-    /**
-     * @param string $pathToPublicKey
-     * @param string $pathToAuthorizedKeys
-     * @return self
-     * @throws RuntimeException
-     */
     public function addPublicKey(
-        string $pathToPublicKey,
-        string $pathToAuthorizedKeys = self::DEFAULT_PATH_AUTHORIZED_KEYS
+        HostPath|string $pathToPublicKey,
+        ContainerPath|string $pathToAuthorizedKeys = self::DEFAULT_PATH_AUTHORIZED_KEYS
     ): self {
-        $contents = file_get_contents($pathToPublicKey);
+        $publicKeyPath = $pathToPublicKey instanceof HostPath
+            ? $pathToPublicKey
+            : HostPath::from($pathToPublicKey);
+
+        $authorizedKeysPath = $pathToAuthorizedKeys instanceof ContainerPath
+            ? $pathToAuthorizedKeys
+            : ContainerPath::from($pathToAuthorizedKeys);
+
+        $contents = file_get_contents((string) $publicKeyPath);
         if ($contents === false) {
             throw new RuntimeException(
-                sprintf("Could not read contents of public key at `%s`", $pathToPublicKey)
+                sprintf("Could not read contents of public key at %s", (string) $publicKeyPath)
             );
         }
 
         $publicKeyContents = trim($contents);
+        $sshDir = dirname((string) $authorizedKeysPath);
 
-        $this->execute('echo \'' . $publicKeyContents . '\' >> ' . $pathToAuthorizedKeys);
-
-        $this->execute("chmod 600 {$pathToAuthorizedKeys}");
-        $this->execute("chown root:root {$pathToAuthorizedKeys}");
+        $this->execute("mkdir -p {$sshDir}");
+        $this->execute("chmod 700 {$sshDir}");
+        $this->execute("echo '{$publicKeyContents}' >> {$authorizedKeysPath}");
+        $this->execute("chmod 600 {$authorizedKeysPath}");
+        $this->execute("chown root:root {$authorizedKeysPath}");
 
         return $this;
     }

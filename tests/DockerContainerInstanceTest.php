@@ -38,9 +38,10 @@ it('can get the config', function () {
 });
 
 
-it('throws exception when public key file does not exist', function () {
-    $this->containerInstance->addPublicKey('/nonexistent/key.pub');
-})->throws(\RuntimeException::class, 'Could not read contents of public key');
+it('validates public key path exists', function () {
+    expect(fn() => $this->containerInstance->addPublicKey('/nonexistent/key.pub'))
+        ->toThrow(\InvalidArgumentException::class, 'does not exist');
+});
 
 it('isRunning returns false for non-existent container', function () {
     $isRunning = DockerContainerInstance::isRunning('nonexistent_container_' . uniqid());
@@ -107,6 +108,31 @@ it('can add public key to container', function () {
 
     $output = $instance->execute('cat /root/.ssh/authorized_keys');
     expect($output)->toContain('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTest');
+
+    unlink($tempKeyFile);
+})->group('integration');
+
+it('can add public key with value objects', function () {
+    $container = DockerContainer::create('nginx:alpine')
+        ->name('test-pubkey-vo-' . uniqid())
+        ->shell('sh');
+
+    $instance = $container->start();
+
+    $tempKeyFile = tempnam(sys_get_temp_dir(), 'pubkey');
+    file_put_contents($tempKeyFile, 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTestVO test@example.com');
+
+    $instance->execute('mkdir -p /custom/.ssh');
+
+    $hostPath = \Ninja\Docker\ValueObjects\HostPath::from($tempKeyFile);
+    $containerPath = \Ninja\Docker\ValueObjects\ContainerPath::from('/custom/.ssh/authorized_keys');
+
+    $result = $instance->addPublicKey($hostPath, $containerPath);
+
+    expect($result)->toBe($instance);
+
+    $output = $instance->execute('cat /custom/.ssh/authorized_keys');
+    expect($output)->toContain('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTestVO');
 
     unlink($tempKeyFile);
 })->group('integration');
