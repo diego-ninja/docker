@@ -60,10 +60,7 @@ it('files can be added to the container', function () {
         ->addPublicKey(__DIR__ . '/keys/spatie_docker_package_id_rsa.pub')
         ->addFiles(__DIR__ . '/stubs', '/test');
 
-    $process = $this->ssh->execute([
-        'cd /test',
-        'find .',
-    ]);
+    $process = $this->ssh->execute('cd /test && find .');
 
     $filesOnContainer = array_filter(explode(PHP_EOL, $process->getOutput()));
 
@@ -85,10 +82,9 @@ it('will throw an exception if the container could not start', function () {
 
 it('the docker container is macroable', function () {
     DockerContainerInstance::macro('whoAmI', function () {
-        /** @var Process $process */
-        $process = $this->execute('whoami');
+        $output = $this->execute('whoami');
 
-        return trim($process->getOutput());
+        return trim($output);
     });
 
     $userName = DockerContainer::create('spatie/docker')

@@ -99,26 +99,25 @@ class DockerContainerInstance
         return substr($this->dockerIdentifier, 0, 12);
     }
 
-    /**
-     * @param list<string>|string $command
-     * @param bool $async
-     * @param float|null $timeout
-     * @return Process
-     */
-    public function execute(array|string $command, bool $async = false, ?float $timeout = 60): Process
+    public function execute(string $command): string
     {
-        if (is_array($command)) {
-            $command = implode(';', $command);
+        $dockerCommand = array_merge(
+            $this->config->getBaseCommand(),
+            ['exec', '--interactive', $this->getShortDockerIdentifier(), $this->config->shell]
+        );
+
+        $process = new Process($dockerCommand);
+        $process->setInput($command);
+        $process->setTimeout(null);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new RuntimeException(
+                "Command execution failed: {$process->getErrorOutput()}"
+            );
         }
 
-        $fullCommand = $this->config->getExecCommand($this->getShortDockerIdentifier(), $command);
-
-        $process = new Process($fullCommand);
-        $process->setTimeout($timeout);
-
-        $async ? $process->start() : $process->run();
-
-        return $process;
+        return $process->getOutput();
     }
 
     /**

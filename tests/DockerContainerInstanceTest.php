@@ -12,17 +12,11 @@ beforeEach(function () {
     $this->containerInstance = new DockerContainerInstance(DockerContainer::create('spatie/docker'), '1234', 'test');
 });
 
-it('defaults process timeout to 60s', function () {
-    $process = $this->containerInstance->execute('whoami', false);
+it('executes commands and returns string output', function () {
+    $output = $this->containerInstance->execute('echo "test"');
 
-    expect($process->getTimeout())->toEqual(60);
-});
-
-it('can set a custom process timeout', function () {
-    $process = $this->containerInstance->execute('whoami', false, 3600);
-
-    expect($process->getTimeout())->toEqual(3600);
-});
+    expect($output)->toBeString();
+})->throws(\RuntimeException::class);
 
 it('can get the container name', function () {
     expect($this->containerInstance->getName())->toEqual('test');
@@ -43,23 +37,6 @@ it('can get the config', function () {
         ->and($config->image)->toEqual('spatie/docker');
 });
 
-it('can execute array commands', function () {
-    $process = $this->containerInstance->execute(['whoami', 'pwd'], false);
-
-    expect($process)->toBeInstanceOf(\Symfony\Component\Process\Process::class);
-});
-
-it('can execute string commands', function () {
-    $process = $this->containerInstance->execute('whoami', false);
-
-    expect($process)->toBeInstanceOf(\Symfony\Component\Process\Process::class);
-});
-
-it('executes async commands', function () {
-    $process = $this->containerInstance->execute('whoami', true);
-
-    expect($process)->toBeInstanceOf(\Symfony\Component\Process\Process::class);
-});
 
 it('throws exception when public key file does not exist', function () {
     $this->containerInstance->addPublicKey('/nonexistent/key.pub');
@@ -106,29 +83,10 @@ it('can execute commands in a running container', function () {
 
     $instance = $container->start();
 
-    $process = $instance->execute('echo "hello world"');
+    $output = $instance->execute('echo "hello world"');
 
-    expect($process)->toBeInstanceOf(\Symfony\Component\Process\Process::class)
-        ->and($process->isSuccessful())->toBeTrue()
-        ->and($process->getOutput())->toContain('hello world');
-})->group('integration');
-
-it('can execute commands asynchronously', function () {
-    $container = DockerContainer::create('nginx:alpine')
-        ->name('test-execute-async-' . uniqid())
-        ->shell('sh');
-
-    $instance = $container->start();
-
-    $process = $instance->execute('echo "async test"', true);
-
-    expect($process)->toBeInstanceOf(\Symfony\Component\Process\Process::class)
-        ->and($process->isStarted())->toBeTrue();
-
-    $process->wait();
-
-    expect($process->isSuccessful())->toBeTrue()
-        ->and($process->getOutput())->toContain('async test');
+    expect($output)->toBeString()
+        ->and($output)->toContain('hello world');
 })->group('integration');
 
 it('can add public key to container', function () {
@@ -147,8 +105,8 @@ it('can add public key to container', function () {
 
     expect($result)->toBe($instance);
 
-    $checkProcess = $instance->execute('cat /root/.ssh/authorized_keys');
-    expect($checkProcess->getOutput())->toContain('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTest');
+    $output = $instance->execute('cat /root/.ssh/authorized_keys');
+    expect($output)->toContain('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTest');
 
     unlink($tempKeyFile);
 })->group('integration');
