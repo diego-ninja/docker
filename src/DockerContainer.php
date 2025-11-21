@@ -9,9 +9,12 @@ namespace Ninja\Docker;
 
 use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
 use Ninja\Docker\ValueObjects\ContainerName;
+use Ninja\Docker\ValueObjects\ContainerPath;
+use Ninja\Docker\ValueObjects\HostPath;
 use Ninja\Docker\ValueObjects\ImageName;
 use Ninja\Docker\ValueObjects\NetworkName;
 use Ninja\Docker\ValueObjects\RemoteHost;
+use Ninja\Docker\ValueObjects\VolumeName;
 use Spatie\Macroable\Macroable;
 use Symfony\Component\Process\Process;
 
@@ -58,6 +61,28 @@ class DockerContainer
     public array $volumeMappings {
         /** @return list<VolumeMapping> */
         get => $this->_volumeMappings;
+    }
+
+    /** @var list<BindMountMapping> */
+    private array $_bindMounts = [];
+
+    /**
+     * @var list<BindMountMapping>
+     */
+    public array $bindMounts {
+        /** @return list<BindMountMapping> */
+        get => $this->_bindMounts;
+    }
+
+    /** @var list<NamedVolumeMapping> */
+    private array $_namedVolumes = [];
+
+    /**
+     * @var list<NamedVolumeMapping>
+     */
+    public array $namedVolumes {
+        /** @return list<NamedVolumeMapping> */
+        get => $this->_namedVolumes;
     }
 
     /** @var list<LabelMapping> */
@@ -198,6 +223,26 @@ class DockerContainer
     public function setVolume(string $pathOnHost, string $pathOnDocker): self
     {
         $this->_volumeMappings[] = new VolumeMapping($pathOnHost, $pathOnDocker);
+
+        return $this;
+    }
+
+    public function bindMount(
+        HostPath|string $source,
+        ContainerPath|string $target,
+        string $flags = ''
+    ): self {
+        $this->_bindMounts[] = new BindMountMapping($source, $target, $flags);
+
+        return $this;
+    }
+
+    public function namedVolume(
+        VolumeName|string $name,
+        ContainerPath|string $target,
+        string $flags = ''
+    ): self {
+        $this->_namedVolumes[] = new NamedVolumeMapping($name, $target, $flags);
 
         return $this;
     }
@@ -409,6 +454,16 @@ class DockerContainer
 
         if (count($this->_volumeMappings)) {
             $extraOptions[] = implode(' ', $this->_volumeMappings);
+        }
+
+        if (count($this->_bindMounts)) {
+            $mappings       = array_map(fn($mount) => "-v {$mount}", $this->_bindMounts);
+            $extraOptions[] = implode(' ', $mappings);
+        }
+
+        if (count($this->_namedVolumes)) {
+            $mappings       = array_map(fn($volume) => "-v {$volume}", $this->_namedVolumes);
+            $extraOptions[] = implode(' ', $mappings);
         }
 
         if (count($this->_labelMappings)) {

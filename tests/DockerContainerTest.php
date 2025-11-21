@@ -335,3 +335,29 @@ it('validates network name when string provided', function () {
     expect(fn() => DockerContainer::create('nginx')->network('invalid network'))
         ->toThrow(\InvalidArgumentException::class);
 });
+
+it('creates bind mount with primitives', function () {
+    $tempFile = tempnam(sys_get_temp_dir(), 'test');
+
+    $container = DockerContainer::create('nginx')
+        ->bindMount($tempFile, '/app/data');
+
+    expect($container->bindMounts)->toHaveCount(1)
+        ->and($container->bindMounts[0])->toBeInstanceOf(\Ninja\Docker\BindMountMapping::class);
+
+    unlink($tempFile);
+});
+
+it('creates named volume with primitives', function () {
+    $container = DockerContainer::create('nginx')
+        ->namedVolume('data-volume', '/app/data');
+
+    expect($container->namedVolumes)->toHaveCount(1)
+        ->and($container->namedVolumes[0])->toBeInstanceOf(\Ninja\Docker\NamedVolumeMapping::class);
+});
+
+it('validates bind mount paths', function () {
+    expect(fn() => DockerContainer::create('nginx')
+        ->bindMount('/nonexistent', '/app'))
+        ->toThrow(\InvalidArgumentException::class, 'does not exist');
+});
