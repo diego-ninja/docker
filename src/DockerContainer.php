@@ -23,7 +23,7 @@ class DockerContainer
 
     public ?string $network = null;
 
-    /** @var list<PortMapping> */
+    /** @var list<PortMapping|\Stringable> */
     public array $portMappings = [];
 
     /** @var list<EnvironmentMapping> */
@@ -123,14 +123,32 @@ class DockerContainer
 
     public function mapPort(int|string $portOnHost, int $portOnDocker): self
     {
-        $this->portMappings[] = new PortMapping($portOnHost, $portOnDocker);
+        // For string ports (IP:port format like "127.0.0.1:4848"), we store a simple object
+        // For int ports, we use PortMapping which validates the port numbers
+        if (is_string($portOnHost)) {
+            $this->portMappings[] = new class($portOnHost, $portOnDocker) {
+                public function __construct(
+                    private readonly string $hostSpec,
+                    private readonly int $containerPort
+                ) {}
+
+                public function __toString(): string
+                {
+                    return "{$this->hostSpec}:{$this->containerPort}";
+                }
+            };
+        } else {
+            $this->portMappings[] = new PortMapping($portOnHost, $portOnDocker);
+        }
 
         return $this;
     }
 
     public function setEnvironmentVariable(string $envName, string $envValue): self
     {
-        $this->environmentMappings[] = new EnvironmentMapping($envName, $envValue);
+        $this->environmentMappings[] = new EnvironmentMapping(
+            \Ninja\Docker\ValueObjects\EnvironmentVariable::from($envName, $envValue)
+        );
 
         return $this;
     }
@@ -338,11 +356,13 @@ class DockerContainer
         }
 
         if (count($this->portMappings)) {
-            $extraOptions[] = implode(' ', $this->portMappings);
+            $mappings = array_map(fn ($mapping) => "-p {$mapping}", $this->portMappings);
+            $extraOptions[] = implode(' ', $mappings);
         }
 
         if (count($this->environmentMappings)) {
-            $extraOptions[] = implode(' ', $this->environmentMappings);
+            $mappings = array_map(fn ($mapping) => "-e {$mapping}", $this->environmentMappings);
+            $extraOptions[] = implode(' ', $mappings);
         }
 
         if (count($this->volumeMappings)) {
