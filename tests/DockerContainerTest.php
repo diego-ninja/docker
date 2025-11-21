@@ -387,3 +387,48 @@ it('validates bind mount paths', function () {
         ->bindMount('/nonexistent', '/app'))
         ->toThrow(\InvalidArgumentException::class, 'does not exist');
 });
+
+it('can start container with callback', function () {
+    $container = DockerContainer::create('nginx:alpine')
+        ->name('test-callback-' . uniqid());
+
+    $callbackInvoked = false;
+
+    $instance = $container->start(function ($process) use (&$callbackInvoked) {
+        $callbackInvoked = true;
+    });
+
+    expect($callbackInvoked)->toBeTrue()
+        ->and($instance)->toBeInstanceOf(\Ninja\Docker\DockerContainerInstance::class);
+})->group('integration');
+
+it('can mix bind mounts and named volumes', function () {
+    $tempFile = tempnam(sys_get_temp_dir(), 'test');
+
+    $container = DockerContainer::create('nginx')
+        ->bindMount($tempFile, '/app/data')
+        ->namedVolume('test-volume', '/app/storage');
+
+    expect($container->bindMounts)->toHaveCount(1)
+        ->and($container->namedVolumes)->toHaveCount(1);
+
+    unlink($tempFile);
+});
+
+it('generates command with both bind mounts and named volumes', function () {
+    $tempFile = tempnam(sys_get_temp_dir(), 'test');
+
+    $container = DockerContainer::create('nginx')
+        ->bindMount($tempFile, '/app/data')
+        ->namedVolume('test-volume', '/app/storage');
+
+    $command = $container->getRunCommand();
+
+    $commandString = implode(' ', $command);
+
+    expect($commandString)->toContain('-v')
+        ->and($commandString)->toContain($tempFile . ':/app/data')
+        ->and($commandString)->toContain('test-volume:/app/storage');
+
+    unlink($tempFile);
+});

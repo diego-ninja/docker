@@ -220,6 +220,9 @@ class DockerContainer
         return $this;
     }
 
+    /**
+     * @deprecated Use bindMount() or namedVolume() instead for explicit volume type handling
+     */
     public function setVolume(string $pathOnHost, string $pathOnDocker): self
     {
         $this->_volumeMappings[] = new VolumeMapping($pathOnHost, $pathOnDocker);
@@ -317,7 +320,7 @@ class DockerContainer
             ...$this->getBaseCommand(),
             'run',
             ...$this->getExtraOptions(),
-            (string) $this->image,
+            (string)$this->image,
             ...$this->commands,
         ];
 
@@ -452,37 +455,37 @@ class DockerContainer
 
         foreach ($this->_portMappings as $mapping) {
             $extraOptions[] = '-p';
-            $extraOptions[] = (string) $mapping;
+            $extraOptions[] = (string)$mapping;
         }
 
         foreach ($this->_environmentMappings as $mapping) {
             $extraOptions[] = '-e';
-            $extraOptions[] = (string) $mapping;
+            $extraOptions[] = (string)$mapping;
         }
 
         foreach ($this->_volumeMappings as $mapping) {
             $extraOptions[] = '-v';
-            $extraOptions[] = (string) $mapping;
+            $extraOptions[] = (string)$mapping;
         }
 
         foreach ($this->_bindMounts as $mount) {
             $extraOptions[] = '-v';
-            $extraOptions[] = (string) $mount;
+            $extraOptions[] = (string)$mount;
         }
 
         foreach ($this->_namedVolumes as $volume) {
             $extraOptions[] = '-v';
-            $extraOptions[] = (string) $volume;
+            $extraOptions[] = (string)$volume;
         }
 
         foreach ($this->_labelMappings as $label) {
             $extraOptions[] = '-l';
-            $extraOptions[] = (string) $label;
+            $extraOptions[] = (string)$label;
         }
 
         if ($this->name !== null) {
             $extraOptions[] = '--name';
-            $extraOptions[] = (string) $this->name;
+            $extraOptions[] = (string)$this->name;
         }
 
         if ($this->daemonize) {
@@ -499,7 +502,7 @@ class DockerContainer
 
         if ($this->network !== null) {
             $extraOptions[] = '--network';
-            $extraOptions[] = (string) $this->network;
+            $extraOptions[] = (string)$this->network;
         }
 
         return $extraOptions;
@@ -514,7 +517,7 @@ class DockerContainer
 
         if ($this->remoteHost !== null) {
             $extraDockerOptions[] = '-H';
-            $extraDockerOptions[] = (string) $this->remoteHost;
+            $extraDockerOptions[] = (string)$this->remoteHost;
         }
 
         return $extraDockerOptions;
