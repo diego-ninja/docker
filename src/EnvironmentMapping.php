@@ -1,21 +1,25 @@
 <?php
 
-// ABOUTME: Represents an environment variable mapping for container configuration.
-// ABOUTME: Formats environment variable for Docker CLI commands.
+// ABOUTME: Represents an environment variable for container.
+// ABOUTME: Validates variable name via EnvironmentVariable value object.
 
 declare(strict_types=1);
 
 namespace Ninja\Docker;
 
+use Ninja\Docker\ValueObjects\EnvironmentVariable;
+
 final readonly class EnvironmentMapping
 {
-    public function __construct(
-        public string $name,
-        public string $value,
-    ) {}
+    public EnvironmentVariable $variable;
+
+    public function __construct(EnvironmentVariable $variable)
+    {
+        $this->variable = $variable;
+    }
 
     public function __toString(): string
     {
-        return "-e {$this->name}={$this->value}";
+        return (string)$this->variable;
     }
 }
