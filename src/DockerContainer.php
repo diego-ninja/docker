@@ -24,16 +24,48 @@ class DockerContainer
     public ?string $network = null;
 
     /** @var list<PortMapping|\Stringable> */
-    public array $portMappings = [];
+    private array $_portMappings = [];
+
+    /**
+     * @var list<PortMapping|\Stringable>
+     */
+    public array $portMappings {
+        /** @return list<PortMapping|\Stringable> */
+        get => $this->_portMappings;
+    }
 
     /** @var list<EnvironmentMapping> */
-    public array $environmentMappings = [];
+    private array $_environmentMappings = [];
+
+    /**
+     * @var list<EnvironmentMapping>
+     */
+    public array $environmentMappings {
+        /** @return list<EnvironmentMapping> */
+        get => $this->_environmentMappings;
+    }
 
     /** @var list<VolumeMapping> */
-    public array $volumeMappings = [];
+    private array $_volumeMappings = [];
+
+    /**
+     * @var list<VolumeMapping>
+     */
+    public array $volumeMappings {
+        /** @return list<VolumeMapping> */
+        get => $this->_volumeMappings;
+    }
 
     /** @var list<LabelMapping> */
-    public array $labelMappings = [];
+    private array $_labelMappings = [];
+
+    /**
+     * @var list<LabelMapping>
+     */
+    public array $labelMappings {
+        /** @return list<LabelMapping> */
+        get => $this->_labelMappings;
+    }
 
     public bool $cleanUpAfterExit = true;
 
@@ -126,7 +158,7 @@ class DockerContainer
         // For string ports (IP:port format like "127.0.0.1:4848"), we store a simple object
         // For int ports, we use PortMapping which validates the port numbers
         if (is_string($portOnHost)) {
-            $this->portMappings[] = new class($portOnHost, $portOnDocker) {
+            $this->_portMappings[] = new class ($portOnHost, $portOnDocker) {
                 public function __construct(
                     private readonly string $hostSpec,
                     private readonly int $containerPort
@@ -138,7 +170,7 @@ class DockerContainer
                 }
             };
         } else {
-            $this->portMappings[] = new PortMapping($portOnHost, $portOnDocker);
+            $this->_portMappings[] = new PortMapping($portOnHost, $portOnDocker);
         }
 
         return $this;
@@ -146,7 +178,7 @@ class DockerContainer
 
     public function setEnvironmentVariable(string $envName, string $envValue): self
     {
-        $this->environmentMappings[] = new EnvironmentMapping(
+        $this->_environmentMappings[] = new EnvironmentMapping(
             \Ninja\Docker\ValueObjects\EnvironmentVariable::from($envName, $envValue)
         );
 
@@ -155,14 +187,14 @@ class DockerContainer
 
     public function setVolume(string $pathOnHost, string $pathOnDocker): self
     {
-        $this->volumeMappings[] = new VolumeMapping($pathOnHost, $pathOnDocker);
+        $this->_volumeMappings[] = new VolumeMapping($pathOnHost, $pathOnDocker);
 
         return $this;
     }
 
     public function setLabel(string $labelName, string $labelValue): self
     {
-        $this->labelMappings[] = new LabelMapping($labelName, $labelValue);
+        $this->_labelMappings[] = new LabelMapping($labelName, $labelValue);
 
         return $this;
     }
@@ -355,22 +387,22 @@ class DockerContainer
             $extraOptions[] = implode(' ', $this->optionalArgs);
         }
 
-        if (count($this->portMappings)) {
-            $mappings = array_map(fn ($mapping) => "-p {$mapping}", $this->portMappings);
+        if (count($this->_portMappings)) {
+            $mappings       = array_map(fn($mapping) => "-p {$mapping}", $this->_portMappings);
             $extraOptions[] = implode(' ', $mappings);
         }
 
-        if (count($this->environmentMappings)) {
-            $mappings = array_map(fn ($mapping) => "-e {$mapping}", $this->environmentMappings);
+        if (count($this->_environmentMappings)) {
+            $mappings       = array_map(fn($mapping) => "-e {$mapping}", $this->_environmentMappings);
             $extraOptions[] = implode(' ', $mappings);
         }
 
-        if (count($this->volumeMappings)) {
-            $extraOptions[] = implode(' ', $this->volumeMappings);
+        if (count($this->_volumeMappings)) {
+            $extraOptions[] = implode(' ', $this->_volumeMappings);
         }
 
-        if (count($this->labelMappings)) {
-            $extraOptions[] = implode(' ', $this->labelMappings);
+        if (count($this->_labelMappings)) {
+            $extraOptions[] = implode(' ', $this->_labelMappings);
         }
 
         if ($this->name !== '') {

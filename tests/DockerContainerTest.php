@@ -254,3 +254,45 @@ it('can generate start command with remote host', function () {
 
     expect($command)->toEqual('docker -H ssh://username@host start abcdefghijkl');
 });
+
+it('exposes port mappings as read-only array', function () {
+    $container = DockerContainer::create('nginx')
+        ->mapPort(8080, 80)
+        ->mapPort(9090, 90);
+
+    $mappings = $container->portMappings;
+
+    expect($mappings)->toBeArray()
+        ->and($mappings)->toHaveCount(2);
+});
+
+it('returns list type for port mappings', function () {
+    $container = DockerContainer::create('nginx')
+        ->mapPort(8080, 80);
+
+    $mappings = $container->portMappings;
+
+    expect(array_is_list($mappings))->toBeTrue();
+});
+
+it('exposes environment mappings as read-only array', function () {
+    $container = DockerContainer::create('nginx')
+        ->setEnvironmentVariable('KEY1', 'val1')
+        ->setEnvironmentVariable('KEY2', 'val2');
+
+    $mappings = $container->environmentMappings;
+
+    expect($mappings)->toBeArray()
+        ->and($mappings)->toHaveCount(2);
+});
+
+it('exposes volume mappings as read-only array', function () {
+    $container = DockerContainer::create('nginx')
+        ->setVolume('/host1', '/container1')
+        ->setVolume('/host2', '/container2');
+
+    $mappings = $container->volumeMappings;
+
+    expect($mappings)->toBeArray()
+        ->and($mappings)->toHaveCount(2);
+});
