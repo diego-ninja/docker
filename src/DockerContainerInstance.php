@@ -28,7 +28,7 @@ class DockerContainerInstance
     public static function fromExisting(string $name): self
     {
         return new self(
-            config: new DockerContainer(
+            config: DockerContainer::create(
                 image: self::getImageFromExistingContainer($name),
                 name: $name
             ),

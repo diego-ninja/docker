@@ -8,6 +8,10 @@ declare(strict_types=1);
 namespace Ninja\Docker;
 
 use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
+use Ninja\Docker\ValueObjects\ContainerName;
+use Ninja\Docker\ValueObjects\ImageName;
+use Ninja\Docker\ValueObjects\NetworkName;
+use Ninja\Docker\ValueObjects\RemoteHost;
 use Spatie\Macroable\Macroable;
 use Symfony\Component\Process\Process;
 
@@ -21,7 +25,7 @@ class DockerContainer
 
     public string $shell = 'bash';
 
-    public ?string $network = null;
+    public ?NetworkName $network = null;
 
     /** @var list<PortMapping|\Stringable> */
     private array $_portMappings = [];
@@ -71,7 +75,7 @@ class DockerContainer
 
     public bool $stopOnDestruct = false;
 
-    public string $remoteHost = '';
+    public ?RemoteHost $remoteHost = null;
 
     public string $command = '';
 
@@ -83,23 +87,29 @@ class DockerContainer
 
     protected float $startCommandTimeout = 60;
 
-    final public function __construct(public string $image, public string $name = '') {}
+    final public function __construct(
+        public ImageName $image,
+        public ?ContainerName $name = null
+    ) {}
 
-    public static function create(string $image, string $name = ''): self
+    public static function create(ImageName|string $image, ContainerName|string|null $name = null): self
     {
-        return new static($image, $name);
+        $imageVO = $image instanceof ImageName ? $image : ImageName::from($image);
+        $nameVO  = $name === null ? null : ($name instanceof ContainerName ? $name : ContainerName::from($name));
+
+        return new static($imageVO, $nameVO);
     }
 
-    public function image(string $image): self
+    public function image(ImageName|string $image): self
     {
-        $this->image = $image;
+        $this->image = $image instanceof ImageName ? $image : ImageName::from($image);
 
         return $this;
     }
 
-    public function name(string $name): self
+    public function name(ContainerName|string $name): self
     {
-        $this->name = $name;
+        $this->name = $name instanceof ContainerName ? $name : ContainerName::from($name);
 
         return $this;
     }
@@ -125,9 +135,9 @@ class DockerContainer
         return $this;
     }
 
-    public function network(string $network): self
+    public function network(NetworkName|string $network): self
     {
-        $this->network = $network;
+        $this->network = $network instanceof NetworkName ? $network : NetworkName::from($network);
 
         return $this;
     }
@@ -228,9 +238,9 @@ class DockerContainer
         return $this;
     }
 
-    public function remoteHost(string $remoteHost): self
+    public function remoteHost(RemoteHost|string $remoteHost): self
     {
-        $this->remoteHost = $remoteHost;
+        $this->remoteHost = $remoteHost instanceof RemoteHost ? $remoteHost : RemoteHost::from($remoteHost);
 
         return $this;
     }
@@ -360,7 +370,7 @@ class DockerContainer
         return new DockerContainerInstance(
             $this,
             $dockerIdentifier,
-            $this->name,
+            $this->name?->value ?: $dockerIdentifier,
         );
     }
 
@@ -405,7 +415,7 @@ class DockerContainer
             $extraOptions[] = implode(' ', $this->_labelMappings);
         }
 
-        if ($this->name !== '') {
+        if ($this->name !== null) {
             $extraOptions[] = "--name {$this->name}";
         }
 
@@ -421,7 +431,7 @@ class DockerContainer
             $extraOptions[] = '--rm';
         }
 
-        if ($this->network) {
+        if ($this->network !== null) {
             $extraOptions[] = '--network ' . $this->network;
         }
 
@@ -435,7 +445,7 @@ class DockerContainer
     {
         $extraDockerOptions = [];
 
-        if ($this->remoteHost !== '') {
+        if ($this->remoteHost !== null) {
             $extraDockerOptions[] = "-H {$this->remoteHost}";
         }
 

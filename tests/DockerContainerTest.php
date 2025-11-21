@@ -8,7 +8,7 @@ declare(strict_types=1);
 use Ninja\Docker\DockerContainer;
 
 beforeEach(function () {
-    $this->container = new DockerContainer('ninja/docker');
+    $this->container = DockerContainer::create('ninja/docker');
 });
 
 it('will daemonize and clean up the container by default', function () {
@@ -295,4 +295,43 @@ it('exposes volume mappings as read-only array', function () {
 
     expect($mappings)->toBeArray()
         ->and($mappings)->toHaveCount(2);
+});
+
+it('accepts ImageName or string in create()', function () {
+    $container1 = DockerContainer::create('nginx');
+    $container2 = DockerContainer::create(\Ninja\Docker\ValueObjects\ImageName::from('nginx'));
+
+    expect($container1->image)->toBeInstanceOf(\Ninja\Docker\ValueObjects\ImageName::class)
+        ->and($container2->image)->toBeInstanceOf(\Ninja\Docker\ValueObjects\ImageName::class);
+});
+
+it('validates image name when string provided to create()', function () {
+    expect(fn() => DockerContainer::create('INVALID IMAGE'))
+        ->toThrow(\InvalidArgumentException::class);
+});
+
+it('accepts ContainerName or string in name()', function () {
+    $container = DockerContainer::create('nginx')
+        ->name('test-container');
+
+    expect($container->name)->toBeInstanceOf(\Ninja\Docker\ValueObjects\ContainerName::class)
+        ->and($container->name->value)->toBe('test-container');
+});
+
+it('validates container name when string provided to name()', function () {
+    expect(fn() => DockerContainer::create('nginx')->name('invalid name'))
+        ->toThrow(\InvalidArgumentException::class);
+});
+
+it('accepts NetworkName or string in network()', function () {
+    $container = DockerContainer::create('nginx')
+        ->network('my-network');
+
+    expect($container->network)->toBeInstanceOf(\Ninja\Docker\ValueObjects\NetworkName::class)
+        ->and($container->network->value)->toBe('my-network');
+});
+
+it('validates network name when string provided', function () {
+    expect(fn() => DockerContainer::create('nginx')->network('invalid network'))
+        ->toThrow(\InvalidArgumentException::class);
 });
