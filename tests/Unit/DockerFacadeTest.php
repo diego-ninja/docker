@@ -197,3 +197,18 @@ it('does not mount data directory when not specified', function () {
 
     expect($container->bindMounts)->toHaveCount(0);
 });
+
+it('allows name override via config', function () {
+    $container = Docker::nginx(['name' => 'my-custom-nginx']);
+
+    expect($container->name?->value)->toBe('my-custom-nginx');
+});
+
+it('generates unique names by default', function () {
+    $container1 = Docker::nginx();
+    $container2 = Docker::nginx();
+
+    expect($container1->name?->value)->not->toBe($container2->name?->value)
+        ->and($container1->name?->value)->toStartWith('nginx-')
+        ->and($container2->name?->value)->toStartWith('nginx-');
+});

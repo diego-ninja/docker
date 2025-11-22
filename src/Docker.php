@@ -166,8 +166,11 @@ final class Docker
             $container->bindMount($dataDir, $definition['volumes'][0]);
         }
 
-        // Auto-generate unique name
-        $container->name(self::generateName($definition['name_prefix']));
+        // Apply name (override or auto-generate)
+        /** @var string|null $configName */
+        $configName = $config['name'] ?? null;
+        $name       = $configName     ?? self::generateName($definition['name_prefix']);
+        $container->name($name);
 
         return $container;
     }
