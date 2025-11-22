@@ -2,6 +2,41 @@
 
 All notable changes to `docker` will be documented in this file
 
+## [3.0.0] - 2025-11-22
+
+### Breaking Changes
+
+- Command methods (`getStartCommand()`, etc.) now return `array` instead of `string`
+- `setVolume()` replaced with `bindMount()` and `namedVolume()`
+- All inputs now validated immediately, throwing `InvalidArgumentException` on invalid values
+- Public array properties now read-only via PHP 8.4 property hooks
+- Mapping classes now use value objects internally
+
+### Added
+
+- 9 new value objects for validation: `Port`, `ContainerName`, `NetworkName`, `ImageName`, `HostPath`, `VolumeName`, `ContainerPath`, `EnvironmentVariable`, `RemoteHost`
+- `bindMount()` method for host filesystem bind mounts
+- `namedVolume()` method for Docker managed volumes
+- PHP 8.4 property hooks for read-only array access
+- Comprehensive security tests
+
+### Changed
+
+- Array-based command execution prevents shell injection
+- Test coverage increased from 88% to 95%+
+- PHPStan level 10 compliance maintained
+- PHP 8.4 asymmetric visibility in all value objects
+
+### Security
+
+- **CRITICAL**: Fixed command injection vulnerabilities in container names, network names, and all string inputs
+- All user input now validated before passing to Docker commands
+- Shell parsing eliminated via Symfony Process arrays
+
+### Deprecated
+
+- `setVolume()` - use `bindMount()` or `namedVolume()` instead
+
 ## 2.0.0 - 2025-11-20
 
 ### Breaking Changes
