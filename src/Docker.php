@@ -155,8 +155,15 @@ final class Docker
             if (isset($config[$configKey])) {
                 /** @var string|int|float|bool $value */
                 $value = $config[$configKey];
-                $container->setEnvironmentVariable($envVar, (string) $value);
+                $container->setEnvironmentVariable($envVar, (string)$value);
             }
+        }
+
+        // Apply data directory bind mount if specified
+        if (isset($config['data_dir']) && !empty($definition['volumes'])) {
+            /** @var string $dataDir */
+            $dataDir = $config['data_dir'];
+            $container->bindMount($dataDir, $definition['volumes'][0]);
         }
 
         // Auto-generate unique name

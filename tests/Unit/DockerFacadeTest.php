@@ -153,3 +153,47 @@ it('maps multiple mysql env vars', function () {
         ->and($envStrings)->toContain('MYSQL_USER=appuser')
         ->and($envStrings)->toContain('MYSQL_PASSWORD=user_secret');
 });
+
+it('mounts data directory for mysql', function () {
+    $tempDir = sys_get_temp_dir() . '/mysql-test-' . uniqid();
+    mkdir($tempDir);
+
+    $container = Docker::mysql([
+        'password' => 'secret',
+        'data_dir' => $tempDir,
+    ]);
+
+    expect($container->bindMounts)->toHaveCount(1);
+
+    /** @var \Ninja\Docker\BindMountMapping $bindMount */
+    $bindMount = $container->bindMounts[0];
+    expect($bindMount->source->value)->toBe($tempDir)
+        ->and($bindMount->target->value)->toBe('/var/lib/mysql');
+
+    rmdir($tempDir);
+});
+
+it('mounts data directory for postgres', function () {
+    $tempDir = sys_get_temp_dir() . '/postgres-test-' . uniqid();
+    mkdir($tempDir);
+
+    $container = Docker::postgres([
+        'password' => 'secret',
+        'data_dir' => $tempDir,
+    ]);
+
+    expect($container->bindMounts)->toHaveCount(1);
+
+    /** @var \Ninja\Docker\BindMountMapping $bindMount */
+    $bindMount = $container->bindMounts[0];
+    expect($bindMount->source->value)->toBe($tempDir)
+        ->and($bindMount->target->value)->toBe('/var/lib/postgresql/data');
+
+    rmdir($tempDir);
+});
+
+it('does not mount data directory when not specified', function () {
+    $container = Docker::mysql(['password' => 'secret']);
+
+    expect($container->bindMounts)->toHaveCount(0);
+});
