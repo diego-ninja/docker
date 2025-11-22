@@ -236,3 +236,45 @@ it('generic container supports fluent API', function () {
     expect($container->portMappings)->toHaveCount(1)
         ->and($container->environmentMappings)->toHaveCount(1);
 });
+
+it('allows fluent override after mysql shortcut', function () {
+    $container = Docker::mysql(['password' => 'secret'])
+        ->mapPort(3307, 3306)
+        ->namedVolume('mysql-data', '/var/lib/mysql');
+
+    /** @var \Ninja\Docker\PortMapping $portMapping */
+    $portMapping = $container->portMappings[1];  // Second port (first is 3306:3306)
+    expect($portMapping->portOnHost->value)->toBe(3307)
+        ->and($portMapping->portOnDocker->value)->toBe(3306)
+        ->and($container->namedVolumes)->toHaveCount(1);
+});
+
+it('allows fluent override after postgres shortcut', function () {
+    $tempDir = sys_get_temp_dir() . '/pg-conf-' . uniqid();
+    mkdir($tempDir);
+
+    $container = Docker::postgres(['password' => 'secret'])
+        ->bindMount($tempDir, '/etc/postgresql')
+        ->network('backend');
+
+    expect($container->bindMounts)->toHaveCount(1)
+        ->and($container->network?->value)->toBe('backend');
+
+    rmdir($tempDir);
+});
+
+it('allows fluent override after nginx shortcut', function () {
+    $tempDir = sys_get_temp_dir() . '/nginx-conf-' . uniqid();
+    mkdir($tempDir);
+
+    $container = Docker::nginx()
+        ->bindMount($tempDir, '/etc/nginx')
+        ->mapPort(8080, 80)
+        ->name('custom-nginx');
+
+    expect($container->bindMounts)->toHaveCount(1)
+        ->and($container->portMappings)->toHaveCount(2)  // Default 80:80 + 8080:80
+        ->and($container->name?->value)->toBe('custom-nginx');
+
+    rmdir($tempDir);
+});
