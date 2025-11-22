@@ -19,7 +19,6 @@ This package provides a fluent, modern API to start and manage Docker containers
 - ✅ **Ergonomic Facade API**: A static `Docker` facade that simplifies container creation (`Docker::nginx()->start()`).
 - ✅ **Type-Safe**: Thanks to PHP 8.4 and the intensive use of immutable Value Objects (`ImageName`, `ContainerPath`, `Port`) to validate all inputs.
 - ✅ **Secure**: Prevents command injection by validating all parameters through Value Objects.
-- ✅ **Remote Host Support**: Run containers on remote machines via SSH.
 - ✅ **SSH Agent Forwarding**: Securely allows containers to access the host's SSH keys.
 - ✅ **Extensible**: Register your own custom services on the `Facade` to reuse configurations.
 - ✅ **Well-Tested**: Over 95% test coverage.
