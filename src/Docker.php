@@ -90,7 +90,12 @@ final class Docker
     }
 
     /**
-     * @param array<string, mixed> $config
+     * Create nginx container with sensible defaults.
+     *
+     * @param array{
+     *     port?: int,
+     *     name?: string
+     * } $config
      */
     public static function nginx(array $config = []): DockerContainer
     {
@@ -98,7 +103,17 @@ final class Docker
     }
 
     /**
-     * @param array<string, mixed> $config
+     * Create MySQL 8 container with sensible defaults.
+     *
+     * @param array{
+     *     password?: string,
+     *     database?: string,
+     *     user?: string,
+     *     user_password?: string,
+     *     data_dir?: string,
+     *     port?: int,
+     *     name?: string
+     * } $config
      */
     public static function mysql(array $config = []): DockerContainer
     {
@@ -106,7 +121,16 @@ final class Docker
     }
 
     /**
-     * @param array<string, mixed> $config
+     * Create PostgreSQL 16 container with sensible defaults.
+     *
+     * @param array{
+     *     password?: string,
+     *     database?: string,
+     *     user?: string,
+     *     data_dir?: string,
+     *     port?: int,
+     *     name?: string
+     * } $config
      */
     public static function postgres(array $config = []): DockerContainer
     {
@@ -114,7 +138,12 @@ final class Docker
     }
 
     /**
-     * @param array<string, mixed> $config
+     * Create Redis container with sensible defaults.
+     *
+     * @param array{
+     *     port?: int,
+     *     name?: string
+     * } $config
      */
     public static function redis(array $config = []): DockerContainer
     {
@@ -122,7 +151,11 @@ final class Docker
     }
 
     /**
-     * @param array<string, mixed> $config
+     * Create generic container from any image.
+     *
+     * @param array{
+     *     name?: string
+     * } $config
      */
     public static function container(string $image, array $config = []): DockerContainer
     {
