@@ -35,3 +35,25 @@ it('starts nginx container and serves default page', function () {
         $container->stop();
     }
 })->group('integration');
+
+it('starts redis container and accepts connections', function () {
+    $container = Docker::redis()->start();
+
+    try {
+        // Wait for redis to be ready
+        sleep(2);
+
+        // Verify redis is running
+        expect(DockerContainerInstance::isRunning($container->getName()))->toBeTrue();
+
+        // Verify can connect to redis
+        $socket = @fsockopen('localhost', 6379, $errno, $errstr, 5);
+        expect($socket)->not->toBeFalse();
+
+        if ($socket !== false) {
+            fclose($socket);
+        }
+    } finally {
+        $container->stop();
+    }
+})->group('integration');
