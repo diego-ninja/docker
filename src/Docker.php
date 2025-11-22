@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Ninja\Docker;
 
+use BadMethodCallException;
 use InvalidArgumentException;
 
 final class Docker
@@ -38,6 +39,55 @@ final class Docker
             'name_prefix' => 'redis',
         ],
     ];
+
+    /** @var array<string, array{image: string, ports?: array<int, int>, name_prefix: string, env_vars?: list<string>, volumes?: list<string>}> */
+    private static array $customServices = [];
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function register(string $name, array $config): void
+    {
+        // Validate required fields
+        if (!isset($config['image']) || !is_string($config['image'])) {
+            throw new InvalidArgumentException('Service config must include "image"');
+        }
+
+        if (!isset($config['name_prefix']) || !is_string($config['name_prefix'])) {
+            throw new InvalidArgumentException('Service config must include "name_prefix"');
+        }
+
+        // Prevent override of built-in services
+        if (isset(self::SERVICES[$name])) {
+            throw new InvalidArgumentException(
+                sprintf("Cannot override built-in service '%s'", $name)
+            );
+        }
+
+        /** @var array{image: string, ports?: array<int, int>, name_prefix: string, env_vars?: list<string>, volumes?: list<string>} $config */
+        self::$customServices[$name] = $config;
+    }
+
+    /**
+     * @param array<int, mixed> $args
+     */
+    public static function __callStatic(string $method, array $args): DockerContainer
+    {
+        if (isset(self::SERVICES[$method]) || isset(self::$customServices[$method])) {
+            $firstArg = $args[0] ?? [];
+            /** @var array<string, mixed> $config */
+            $config = is_array($firstArg) ? $firstArg : [];
+            return self::createFromService($method, $config);
+        }
+
+        throw new BadMethodCallException(
+            sprintf(
+                "Service '%s' not registered. Available: %s",
+                $method,
+                implode(', ', array_keys(array_merge(self::SERVICES, self::$customServices)))
+            )
+        );
+    }
 
     /**
      * @param array<string, mixed> $config
@@ -76,14 +126,14 @@ final class Docker
      */
     private static function createFromService(string $service, array $config): DockerContainer
     {
-        $definition = self::SERVICES[$service] ?? null;
+        $definition = self::SERVICES[$service] ?? self::$customServices[$service] ?? null;
 
         if ($definition === null) {
             throw new InvalidArgumentException(
                 sprintf(
                     "Service '%s' not registered. Available: %s",
                     $service,
-                    implode(', ', array_keys(self::SERVICES))
+                    implode(', ', array_keys(array_merge(self::SERVICES, self::$customServices)))
                 )
             );
         }
@@ -92,7 +142,6 @@ final class Docker
         $container = DockerContainer::create($definition['image']);
 
         // Apply default port mappings
-        /** @phpstan-ignore-next-line nullCoalesce.offset - Future-proofing for custom services without ports */
         foreach ($definition['ports'] ?? [] as $hostPort => $containerPort) {
             $container->mapPort($hostPort, $containerPort);
         }
