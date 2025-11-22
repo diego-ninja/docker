@@ -124,6 +124,14 @@ final class Docker
     /**
      * @param array<string, mixed> $config
      */
+    public static function container(string $image, array $config = []): DockerContainer
+    {
+        return self::createGeneric($image, $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
     private static function createFromService(string $service, array $config): DockerContainer
     {
         $definition = self::SERVICES[$service] ?? self::$customServices[$service] ?? null;
@@ -199,5 +207,22 @@ final class Docker
             ],
             default => [],
         };
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private static function createGeneric(string $image, array $config): DockerContainer
+    {
+        $container = DockerContainer::create($image);
+
+        // Apply name if specified
+        if (isset($config['name'])) {
+            /** @var string $name */
+            $name = $config['name'];
+            $container->name($name);
+        }
+
+        return $container;
     }
 }

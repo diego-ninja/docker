@@ -127,14 +127,14 @@ it('maps mysql password from config', function () {
     $container = Docker::mysql(['password' => 'secret123']);
 
     expect($container->environmentMappings)->toHaveCount(1)
-        ->and((string) $container->environmentMappings[0])->toBe('MYSQL_ROOT_PASSWORD=secret123');
+        ->and((string)$container->environmentMappings[0])->toBe('MYSQL_ROOT_PASSWORD=secret123');
 });
 
 it('maps postgres password from config', function () {
     $container = Docker::postgres(['password' => 'pg_secret']);
 
     expect($container->environmentMappings)->toHaveCount(1)
-        ->and((string) $container->environmentMappings[0])->toBe('POSTGRES_PASSWORD=pg_secret');
+        ->and((string)$container->environmentMappings[0])->toBe('POSTGRES_PASSWORD=pg_secret');
 });
 
 it('maps multiple mysql env vars', function () {
@@ -147,7 +147,7 @@ it('maps multiple mysql env vars', function () {
 
     expect($container->environmentMappings)->toHaveCount(4);
 
-    $envStrings = array_map(fn($m) => (string) $m, $container->environmentMappings);
+    $envStrings = array_map(fn($m) => (string)$m, $container->environmentMappings);
     expect($envStrings)->toContain('MYSQL_ROOT_PASSWORD=root_secret')
         ->and($envStrings)->toContain('MYSQL_DATABASE=myapp')
         ->and($envStrings)->toContain('MYSQL_USER=appuser')
@@ -211,4 +211,28 @@ it('generates unique names by default', function () {
     expect($container1->name?->value)->not->toBe($container2->name?->value)
         ->and($container1->name?->value)->toStartWith('nginx-')
         ->and($container2->name?->value)->toStartWith('nginx-');
+});
+
+it('creates generic container from image', function () {
+    $container = Docker::container('alpine:latest');
+
+    expect($container)->toBeInstanceOf(DockerContainer::class)
+        ->and($container->image->value)->toBe('alpine:latest');
+});
+
+it('creates generic container with config', function () {
+    $container = Docker::container('alpine:latest', [
+        'name' => 'my-alpine',
+    ]);
+
+    expect($container->name?->value)->toBe('my-alpine');
+});
+
+it('generic container supports fluent API', function () {
+    $container = Docker::container('alpine:latest')
+        ->mapPort(8080, 80)
+        ->setEnvironmentVariable('ENV', 'test');
+
+    expect($container->portMappings)->toHaveCount(1)
+        ->and($container->environmentMappings)->toHaveCount(1);
 });
