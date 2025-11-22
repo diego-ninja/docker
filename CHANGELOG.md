@@ -2,6 +2,41 @@
 
 All notable changes to `docker` will be documented in this file
 
+## [3.1.0] - 2025-11-22
+
+### Added
+
+#### Docker Facade
+- New `Docker` facade class with ergonomic shortcuts for common services
+- Static shortcuts: `Docker::nginx()`, `Docker::mysql()`, `Docker::postgres()`, `Docker::redis()`
+- Configuration array support with service-specific options:
+  - `port`: Override default host port
+  - `name`: Override auto-generated container name
+  - `password`, `database`, `user`: Service-specific env vars (MySQL, PostgreSQL)
+  - `data_dir`: Automatic bind mount for data persistence
+- Generic container builder: `Docker::container('image:tag')`
+- Extensible service registry via `Docker::register()`
+- Full compatibility with v3.0.0 fluent API (shortcuts return `DockerContainer`)
+
+### Features
+
+- **Shortcuts**: Common services become one-liners (e.g., `Docker::mysql(['password' => 'secret'])->start()`)
+- **Configuration**: Friendly config keys automatically mapped to Docker env var names
+- **Type Safety**: All shortcuts use v3.0.0 value objects internally (PHPStan level 10)
+- **Security**: Zero additional attack surface (delegates to DockerContainer)
+- **Extensibility**: Register custom services for project-specific needs
+- **Backward Compatible**: Existing `DockerContainer` API unchanged
+
+### Documentation
+
+- Added facade examples to README
+- Added configuration reference for all built-in services
+- Added migration examples (v2.x style vs facade)
+- Added custom service registration guide
+- Created comprehensive facade usage guide
+
+---
+
 ## [3.0.0] - 2025-11-22
 
 ### Breaking Changes
