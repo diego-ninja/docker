@@ -1,10 +1,10 @@
 # Docker Facade Usage Guide
 
-The `Docker` facade provides an ergonomic API for creating Docker containers with sensible defaults. It's built on top of the type-safe v3.0.0 `DockerContainer` implementation and maintains full type safety while reducing boilerplate.
+The `Docker` facade provides an ergonomic API for creating Docker containers with sensible defaults. It's built on top of the type-safe `DockerContainer` implementation and maintains full type safety while reducing boilerplate.
 
 ## Philosophy
 
-**Before (v3.0.0):**
+**Before (v2.1.0):**
 ```php
 DockerContainer::create('mysql:8')
     ->mapPort(3306, 3306)
@@ -13,7 +13,7 @@ DockerContainer::create('mysql:8')
     ->start();
 ```
 
-**After (v3.1.0):**
+**After (v2.1.0):**
 ```php
 Docker::mysql(['password' => 'secret'])->start();
 ```
@@ -447,6 +447,5 @@ The Docker facade provides:
 - **Security**: Zero additional attack surface
 - **Flexibility**: Config arrays + fluent API
 - **Extensibility**: Custom service registration
-- **Compatibility**: Works with existing v3.0.0 code
 
 Use shortcuts for quick setup, fluent API for complex configurations.
