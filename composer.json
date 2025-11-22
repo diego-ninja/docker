@@ -36,7 +36,7 @@
         "captainhook/captainhook": "^5.10",
         "captainhook/plugin-composer": "^5.3",
         "ergebnis/composer-normalize": "^2.30",
-        "friendsofphp/php-cs-fixer": "^3.64",
+        "friendsofphp/php-cs-fixer": "^v3",
         "icanhazstring/composer-unused": "^0.9.5",
         "maglnet/composer-require-checker": "^4.11",
         "pestphp/pest": "^4.0",
@@ -45,6 +45,7 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.0",
         "spatie/ssh": "^1.7.0",
+        "symfony/polyfill-iconv": "^1.33",
         "symfony/var-dumper": "^7.0"
     },
     "autoload": {
@@ -85,8 +86,8 @@
             "@dev:lint:syntax",
             "@dev:lint:style"
         ],
-        "dev:lint:fix": "php-cs-fixer fix --config .php-cs-fixer.php",
-        "dev:lint:style": "php-cs-fixer check --config .php-cs-fixer.php",
+        "dev:lint:fix": "php-cs-fixer fix --config .php-cs-fixer.php --allow-risky=yes",
+        "dev:lint:style": "php-cs-fixer check --config .php-cs-fixer.php --allow-risky=yes",
         "dev:lint:syntax": "parallel-lint --colors src/ tests/",
         "test": "chmod -R 700 tests/keys && vendor/bin/pest",
         "test:coverage": "vendor/bin/pest --coverage-clover coverage/clover.xml --coverage-html coverage/html --coverage-text coverage/coverage.txt",

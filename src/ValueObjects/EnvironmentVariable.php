@@ -26,7 +26,7 @@ final readonly class EnvironmentVariable
             );
         }
 
-        $this->key = $key;
+        $this->key   = $key;
         $this->value = $value;
     }
 
