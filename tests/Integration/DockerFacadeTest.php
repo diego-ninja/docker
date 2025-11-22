@@ -57,3 +57,28 @@ it('starts redis container and accepts connections', function () {
         $container->stop();
     }
 })->group('integration');
+
+it('starts custom registered service', function () {
+    Docker::register('alpine-test', [
+        'image'       => 'alpine:latest',
+        'name_prefix' => 'alpine',
+    ]);
+
+    /** @phpstan-ignore-next-line staticMethod.notFound - Dynamic method via __callStatic */
+    $dockerContainer = Docker::{'alpine-test'}();
+    /** @var \Ninja\Docker\DockerContainer $dockerContainer */
+
+    // Add a command to keep the container running
+    $container = $dockerContainer->setCommands('sleep', '300')->start();
+
+    try {
+        // Wait for container to start
+        sleep(1);
+
+        // Verify container is running
+        expect(DockerContainerInstance::isRunning($container->getName()))->toBeTrue()
+            ->and($container->getName())->toStartWith('alpine-');
+    } finally {
+        $container->stop();
+    }
+})->group('integration');
