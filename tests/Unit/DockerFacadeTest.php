@@ -28,3 +28,30 @@ it('creates nginx with default name prefix', function () {
     expect($container->name)->not->toBeNull()
         ->and($container->name?->value)->toStartWith('nginx-');
 });
+
+it('provides mysql shortcut', function () {
+    $container = Docker::mysql();
+
+    expect($container)->toBeInstanceOf(DockerContainer::class)
+        ->and($container->image->value)->toBe('mysql:8')
+        ->and($container->portMappings)->toHaveCount(1)
+        ->and($container->name?->value)->toStartWith('mysql-');
+});
+
+it('provides postgres shortcut', function () {
+    $container = Docker::postgres();
+
+    expect($container)->toBeInstanceOf(DockerContainer::class)
+        ->and($container->image->value)->toBe('postgres:16')
+        ->and($container->portMappings)->toHaveCount(1)
+        ->and($container->name?->value)->toStartWith('postgres-');
+});
+
+it('provides redis shortcut', function () {
+    $container = Docker::redis();
+
+    expect($container)->toBeInstanceOf(DockerContainer::class)
+        ->and($container->image->value)->toBe('redis:latest')
+        ->and($container->portMappings)->toHaveCount(1)
+        ->and($container->name?->value)->toStartWith('redis-');
+});

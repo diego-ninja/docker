@@ -50,6 +50,30 @@ final class Docker
     /**
      * @param array<string, mixed> $config
      */
+    public static function mysql(array $config = []): DockerContainer
+    {
+        return self::createFromService('mysql', $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function postgres(array $config = []): DockerContainer
+    {
+        return self::createFromService('postgres', $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public static function redis(array $config = []): DockerContainer
+    {
+        return self::createFromService('redis', $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
     private static function createFromService(string $service, array $config): DockerContainer
     {
         $definition = self::SERVICES[$service] ?? null;
