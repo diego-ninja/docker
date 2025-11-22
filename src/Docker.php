@@ -23,7 +23,7 @@ final class Docker
             'image'       => 'mysql:8',
             'ports'       => [3306 => 3306],
             'name_prefix' => 'mysql',
-            'env_vars'    => ['MYSQL_ROOT_PASSWORD'],
+            'env_vars'    => ['MYSQL_ROOT_PASSWORD', 'MYSQL_DATABASE', 'MYSQL_USER', 'MYSQL_PASSWORD'],
             'volumes'     => ['/var/lib/mysql'],
         ],
         'postgres' => [
@@ -148,6 +148,17 @@ final class Docker
             $container->mapPort($actualHostPort, $containerPort);
         }
 
+        // Apply environment variables from config
+        $envMapping = self::getEnvMapping($service);
+        foreach ($definition['env_vars'] ?? [] as $envVar) {
+            $configKey = $envMapping[$envVar] ?? strtolower($envVar);
+            if (isset($config[$configKey])) {
+                /** @var string|int|float|bool $value */
+                $value = $config[$configKey];
+                $container->setEnvironmentVariable($envVar, (string) $value);
+            }
+        }
+
         // Auto-generate unique name
         $container->name(self::generateName($definition['name_prefix']));
 
@@ -157,5 +168,26 @@ final class Docker
     private static function generateName(string $prefix): string
     {
         return sprintf('%s-%s', $prefix, substr(uniqid(), -8));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function getEnvMapping(string $service): array
+    {
+        return match ($service) {
+            'mysql' => [
+                'MYSQL_ROOT_PASSWORD' => 'password',
+                'MYSQL_DATABASE'      => 'database',
+                'MYSQL_USER'          => 'user',
+                'MYSQL_PASSWORD'      => 'user_password',
+            ],
+            'postgres' => [
+                'POSTGRES_PASSWORD' => 'password',
+                'POSTGRES_USER'     => 'user',
+                'POSTGRES_DB'       => 'database',
+            ],
+            default => [],
+        };
     }
 }

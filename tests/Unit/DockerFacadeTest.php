@@ -122,3 +122,34 @@ it('uses default port when not overridden', function () {
     expect($portMapping->portOnHost->value)->toBe(5432)
         ->and($portMapping->portOnDocker->value)->toBe(5432);
 });
+
+it('maps mysql password from config', function () {
+    $container = Docker::mysql(['password' => 'secret123']);
+
+    expect($container->environmentMappings)->toHaveCount(1)
+        ->and((string) $container->environmentMappings[0])->toBe('MYSQL_ROOT_PASSWORD=secret123');
+});
+
+it('maps postgres password from config', function () {
+    $container = Docker::postgres(['password' => 'pg_secret']);
+
+    expect($container->environmentMappings)->toHaveCount(1)
+        ->and((string) $container->environmentMappings[0])->toBe('POSTGRES_PASSWORD=pg_secret');
+});
+
+it('maps multiple mysql env vars', function () {
+    $container = Docker::mysql([
+        'password'      => 'root_secret',
+        'database'      => 'myapp',
+        'user'          => 'appuser',
+        'user_password' => 'user_secret',
+    ]);
+
+    expect($container->environmentMappings)->toHaveCount(4);
+
+    $envStrings = array_map(fn($m) => (string) $m, $container->environmentMappings);
+    expect($envStrings)->toContain('MYSQL_ROOT_PASSWORD=root_secret')
+        ->and($envStrings)->toContain('MYSQL_DATABASE=myapp')
+        ->and($envStrings)->toContain('MYSQL_USER=appuser')
+        ->and($envStrings)->toContain('MYSQL_PASSWORD=user_secret');
+});
