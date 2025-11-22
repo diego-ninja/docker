@@ -134,15 +134,15 @@ class DockerContainerInstance
             ? $pathToAuthorizedKeys
             : ContainerPath::from($pathToAuthorizedKeys);
 
-        $contents = file_get_contents((string) $publicKeyPath);
+        $contents = file_get_contents((string)$publicKeyPath);
         if ($contents === false) {
             throw new RuntimeException(
-                sprintf("Could not read contents of public key at %s", (string) $publicKeyPath)
+                sprintf("Could not read contents of public key at %s", (string)$publicKeyPath)
             );
         }
 
         $publicKeyContents = trim($contents);
-        $sshDir = dirname((string) $authorizedKeysPath);
+        $sshDir            = dirname((string)$authorizedKeysPath);
 
         $this->execute("mkdir -p {$sshDir}");
         $this->execute("chmod 700 {$sshDir}");

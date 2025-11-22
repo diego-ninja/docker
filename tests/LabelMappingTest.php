@@ -5,7 +5,7 @@
 
 declare(strict_types=1);
 
-use Ninja\Docker\LabelMapping;
+use Ninja\Docker\Mappings\LabelMapping;
 
 it('should convert to a string correctly', function () {
     $mapping = new LabelMapping('type', 'primary');

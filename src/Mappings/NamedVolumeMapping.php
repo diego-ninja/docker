@@ -1,34 +1,34 @@
 <?php
 
-// ABOUTME: Represents a bind mount from host filesystem to container.
-// ABOUTME: Validates host path exists and container path format.
+// ABOUTME: Represents a Docker named volume mount.
+// ABOUTME: Uses logical volume names instead of host filesystem paths.
 
 declare(strict_types=1);
 
-namespace Ninja\Docker;
+namespace Ninja\Docker\Mappings;
 
 use Ninja\Docker\ValueObjects\ContainerPath;
-use Ninja\Docker\ValueObjects\HostPath;
+use Ninja\Docker\ValueObjects\VolumeName;
 
-final readonly class BindMountMapping
+final readonly class NamedVolumeMapping
 {
-    public HostPath $source;
+    public VolumeName $name;
     public ContainerPath $target;
     public string $flags;
 
     public function __construct(
-        HostPath|string $source,
+        VolumeName|string $name,
         ContainerPath|string $target,
         string $flags = ''
     ) {
-        $this->source = $source instanceof HostPath ? $source : HostPath::from($source);
+        $this->name   = $name instanceof VolumeName ? $name : VolumeName::from($name);
         $this->target = $target instanceof ContainerPath ? $target : ContainerPath::from($target);
         $this->flags  = $flags;
     }
 
     public function __toString(): string
     {
-        $mapping = "{$this->source}:{$this->target}";
+        $mapping = "{$this->name}:{$this->target}";
         return $this->flags !== '' ? "{$mapping}:{$this->flags}" : $mapping;
     }
 }

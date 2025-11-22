@@ -5,7 +5,7 @@
 
 declare(strict_types=1);
 
-use Ninja\Docker\EnvironmentMapping;
+use Ninja\Docker\Mappings\EnvironmentMapping;
 use Ninja\Docker\ValueObjects\EnvironmentVariable;
 
 it('should convert to a string correctly', function () {

@@ -8,6 +8,12 @@ declare(strict_types=1);
 namespace Ninja\Docker;
 
 use Ninja\Docker\Exceptions\CouldNotStartDockerContainer;
+use Ninja\Docker\Mappings\BindMountMapping;
+use Ninja\Docker\Mappings\EnvironmentMapping;
+use Ninja\Docker\Mappings\LabelMapping;
+use Ninja\Docker\Mappings\NamedVolumeMapping;
+use Ninja\Docker\Mappings\PortMapping;
+use Ninja\Docker\Mappings\VolumeMapping;
 use Ninja\Docker\ValueObjects\ContainerName;
 use Ninja\Docker\ValueObjects\ContainerPath;
 use Ninja\Docker\ValueObjects\HostPath;

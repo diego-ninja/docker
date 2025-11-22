@@ -5,9 +5,9 @@
 
 declare(strict_types=1);
 
-use Ninja\Docker\BindMountMapping;
-use Ninja\Docker\ValueObjects\HostPath;
+use Ninja\Docker\Mappings\BindMountMapping;
 use Ninja\Docker\ValueObjects\ContainerPath;
+use Ninja\Docker\ValueObjects\HostPath;
 
 it('creates bind mount with value objects', function () {
     $tempFile = tempnam(sys_get_temp_dir(), 'test');

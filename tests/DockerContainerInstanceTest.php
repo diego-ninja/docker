@@ -37,7 +37,6 @@ it('can get the config', function () {
         ->and($config->image)->toEqual('spatie/docker');
 });
 
-
 it('validates public key path exists', function () {
     expect(fn() => $this->containerInstance->addPublicKey('/nonexistent/key.pub'))
         ->toThrow(\InvalidArgumentException::class, 'does not exist');
@@ -124,7 +123,7 @@ it('can add public key with value objects', function () {
 
     $instance->execute('mkdir -p /custom/.ssh');
 
-    $hostPath = \Ninja\Docker\ValueObjects\HostPath::from($tempKeyFile);
+    $hostPath      = \Ninja\Docker\ValueObjects\HostPath::from($tempKeyFile);
     $containerPath = \Ninja\Docker\ValueObjects\ContainerPath::from('/custom/.ssh/authorized_keys');
 
     $result = $instance->addPublicKey($hostPath, $containerPath);

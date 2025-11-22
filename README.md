@@ -1,476 +1,239 @@
+# 🐋 Docker for PHP
 
-# Manage docker containers with PHP
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/granite)
+[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/granite)
+![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://opensource.org/licenses/MIT)
+![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/docker?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)
+[![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/7c91e5ba-b5fb-41e1-8692-0bb6a2f1e0e6.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/3cc2ec60-a8b4-4ddc-aeac-ea78e37a094b)
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/docker.svg?style=flat)](https://packagist.org/packages/diego-ninja/docker)
-[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat&color=blue)](https://packagist.org/packages/diego-ninja/docker)
-![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/docker.svg?style=flat)
-[![wakatime](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/7c91e5ba-b5fb-41e1-8692-0bb6a2f1e0e6.svg)](https://wakatime.com/badge/user/bd65f055-c9f3-4f73-92aa-3c9810f70cc3/project/7c91e5ba-b5fb-41e1-8692-0bb6a2f1e0e6)
-[![PHPStan Level 10](https://img.shields.io/badge/PHPStan-level%2010-brightgreen.svg)](https://github.com/diego-ninja/docker/blob/main/.github/workflows/static-code-analysis.yml)
-[![License](https://poser.pugx.org/diego-ninja/docker/license)](https://packagist.org/packages/diego-ninja/docker)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/diego-ninja/docker/run-tests.yml?label=tests)](https://github.com/diego-ninja/docker/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Tests](https://img.shields.io/github/actions/workflow/status/diego-ninja/docker/run-tests.yml?branch=main&style=flat-square&logo=github&label=tests&logoColor=%23949ca4&labelColor=%233f4750)]()
+[![Static Analysis](https://img.shields.io/github/actions/workflow/status/diego-ninja/docker/static-code-analysis.yml?branch=main&style=flat-square&logo=github&label=phpstan%2010&logoColor=%23949ca4&labelColor=%233f4750)]()
+[![Code Style](https://img.shields.io/github/actions/workflow/status/diego-ninja/docker/php-cs-fixer.yml?branch=main&style=flat-square&logo=github&label=style%3A%20PER&logoColor=%23949ca4&labelColor=%233f4750)]()
+[![Coveralls](https://img.shields.io/coverallsCoverage/github/diego-ninja/docker?branch=main&style=flat-square&logo=coveralls&logoColor=%23949ca4&labelColor=%233f4750&link=https%3A%2F%2Fcoveralls.io%2Fgithub%2Fdiego-ninja%2Fdocker)]()
 
-This package provides a nice way to start docker containers and execute commands on them.
+This package provides a fluent, modern API to start and manage Docker containers directly from your PHP code. It is a fork of `spatie/docker` with significant improvements in ergonomics, security, and functionality.
 
-## Features
+## Key Features
 
-- ✅ **Type-safe**: PHP 8.4 with PHPStan level 10
-- ✅ **Secure**: Command injection prevention via validated value objects
-- ✅ **Tested**: 95%+ test coverage
-- ✅ **Modern**: PHP 8.4 property hooks, asymmetric visibility
-
-## Quick Start
-
-```php
-use Ninja\Docker\DockerContainer;
-
-$container = DockerContainer::create('nginx:latest')
-    ->mapPort(8080, 80)
-    ->name('my-nginx')
-    ->bindMount('/path/on/host', '/path/in/container')
-    ->setEnvironmentVariable('ENV_VAR', 'value')
-    ->start();
-
-$container->execute('ls -la');
-
-$container->stop();
-```
-
-## Docker Facade (v3.1.0+)
-
-The `Docker` facade provides ergonomic shortcuts for common services:
-
-### Quick Start
-
-```php
-use Ninja\Docker\Docker;
-
-// Nginx
-Docker::nginx()->start();
-
-// MySQL
-Docker::mysql(['password' => 'secret'])->start();
-
-// PostgreSQL
-Docker::postgres(['password' => 'secret', 'database' => 'myapp'])->start();
-
-// Redis
-Docker::redis()->start();
-```
-
-### Configuration Options
-
-Each service accepts a configuration array:
-
-```php
-// MySQL with database and user
-Docker::mysql([
-    'password' => 'root_secret',
-    'database' => 'myapp',
-    'user' => 'appuser',
-    'user_password' => 'user_secret',
-    'data_dir' => '/path/to/data',  // Persistent data
-    'port' => 3307,                 // Custom port
-])->start();
-
-// PostgreSQL with custom configuration
-Docker::postgres([
-    'password' => 'secret',
-    'database' => 'mydb',
-    'user' => 'dbuser',
-    'data_dir' => '/path/to/data',
-    'port' => 5433,
-])->start();
-```
-
-### Fluent Override
-
-Shortcuts return `DockerContainer` instances, so you can use the fluent API:
-
-```php
-Docker::mysql(['password' => 'secret'])
-    ->mapPort(3307, 3306)           // Override port
-    ->namedVolume('mysql-data', '/var/lib/mysql')  // Named volume
-    ->network('backend')            // Add to network
-    ->start();
-```
-
-### Custom Services
-
-Register your own services:
-
-```php
-Docker::register('rabbitmq', [
-    'image' => 'rabbitmq:3-management',
-    'ports' => [5672 => 5672, 15672 => 15672],
-    'name_prefix' => 'rabbitmq',
-]);
-
-Docker::rabbitmq()->start();
-```
-
-### Generic Container
-
-For any Docker image:
-
-```php
-Docker::container('alpine:latest')
-    ->mapPort(8080, 80)
-    ->setEnvironmentVariable('ENV', 'production')
-    ->start();
-```
-
-### Migration from v2.x Style
-
-```php
-// Old style (still works)
-DockerContainer::create('nginx:latest')
-    ->mapPort(80, 80)
-    ->name('my-nginx')
-    ->start();
-
-// New facade (more ergonomic)
-Docker::nginx()->start();
-
-// Both can coexist
-$nginx = Docker::nginx();
-$custom = DockerContainer::create('custom:latest');
-```
-
-## Differences
-
-This package is a fork of [spatie/docker](https://github.com/spatie/docker) with some adaptations to fit my particular needs.
-
-As major differences, this package drops php 7.x support and gives the possibility to use the library with already created
-containers. Also, all methods that return a Symfony process object now accept an $async flag to run the process asynchronously, using the start method instead of run method. 
-Finally, the start method now accepts an optional callable, if present the callable will be called continuously as the container runs, this callable will take the [Symfony Process](https://symfony.com/doc/current/components/process.html) object as its only parameter.
-
-```php
-$containerInstance = DockerContainerInstance::fromExisting("test-runner"); // uses a running container
-
-$spinner = new Spinner("Running unit tests...") // starts a console spinner
-
-$process = $containerInstance->execute('php vendor/bin/phpunit', true); // starts process asynchronous
-
-while($process->isRunning()) {
-    $spinner->advance(); // updates spinner
-    usleep(2000);    
-}
-
-$process->isSuccessful() ? $spinner->success() : $spinner->error(); // finishes spinner based on result
-````
-
+- ✅ **Ergonomic Facade API**: A static `Docker` facade that simplifies container creation (`Docker::nginx()->start()`).
+- ✅ **Type-Safe**: Thanks to PHP 8.4 and the intensive use of immutable Value Objects (`ImageName`, `ContainerPath`, `Port`) to validate all inputs.
+- ✅ **Secure**: Prevents command injection by validating all parameters through Value Objects.
+- ✅ **Remote Host Support**: Run containers on remote machines via SSH.
+- ✅ **SSH Agent Forwarding**: Securely allows containers to access the host's SSH keys.
+- ✅ **Extensible**: Register your own custom services on the `Facade` to reuse configurations.
+- ✅ **Well-Tested**: Over 95% test coverage.
 
 ## Installation
 
-You can install the package via composer:
+You can install the package via Composer. It requires PHP 8.4 or higher.
 
 ```bash
 composer require diego-ninja/docker
 ```
 
-**Requires PHP 8.4+**
+## Quick Start
 
-## Usage
-
-You can get an instance of a docker container using
+The easiest way to use the package is through the `Docker` facade.
 
 ```php
-$containerInstance = DockerContainer::create($imageName)->start();
+use Ninja\Docker\Docker;
+
+// Start a Nginx container on port 8080
+$container = Docker::image('nginx:latest')
+    ->port(8080, 80)
+    ->name('my-nginx')
+    ->start();
+
+echo "Container started. IP: " . $container->getIp() . "\n";
+
+// Execute a command inside the container
+$output = $container->execute('ls -la /usr/share/nginx/html');
+echo $output;
+
+// Stop and remove the container
+$container->stop();
 ```
 
-By default, the container will be daemonized, and it will be cleaned up after it exists.
+## Key Differences with `spatie/docker`
 
-### Customizing the docker container
+This package is a fork of [spatie/docker](https://github.com/spatie/docker), but it introduces significant improvements:
 
-#### Prevent daemonization
+1.  **Facade for a Simplified API**: The `Docker` facade provides a static, expressive, and easy-to-remember API, ideal for frameworks like Laravel or for quick usage.
+    ```php
+    // Before (and still works)
+    (new DockerContainer('nginx:latest'))->port(8080, 80)->start();
 
-If you don't want your docker being daemonized, call `doNotDaemonize`.
+    // Now (recommended)
+    Docker::image('nginx:latest')->port(8080, 80)->start();
+    ```
+2.  **Type Safety with Value Objects**: Instead of using raw strings and numbers, the library uses Value Objects to validate every parameter, preventing common errors and attacks.
+    ```php
+    // Encourages using Value Objects for clarity and safety
+    use Ninja\Docker\ValueObjects\HostPath;
+    use Ninja\Docker\ValueObjects\ContainerPath;
+
+    Docker::image('...')->volume(
+        HostPath::from(__DIR__ . '/content'),
+        ContainerPath::from('/usr/share/nginx/html')
+    );
+    ```
+3. **Specific Exceptions**: More descriptive exceptions, like `CouldNotStartDockerContainer`, have been added to make debugging easier.
+
+## Detailed Usage
+
+### 1. Using the Facade (Recommended)
+
+The `Docker` facade offers three ways to create containers:
+
+#### a) Shortcuts for Common Services
+
+It includes shortcuts for the most popular services with pre-defined configurations.
 
 ```php
-$containerInstance = DockerContainer::create($imageName)
-    ->doNotDaemonize()
+// Nginx on port 80
+Docker::nginx()->start();
+
+// MySQL 8 with a root password
+Docker::mysql(['password' => 'secret'])->start();
+
+// PostgreSQL 16 with a password
+Docker::postgres(['password' => 'secret', 'database' => 'my_app'])->start();
+
+// Redis
+Docker::redis()->start();
+```
+
+You can pass a configuration array to customize the service:
+
+```php
+// MySQL with a database, user, and persistent data directory
+Docker::mysql([
+    'password'      => 'root_secret',
+    'database'      => 'my_app',
+    'user'          => 'app_user',
+    'user_password' => 'user_pass',
+    'data_dir'      => '/path/on/host/for/data', // Volume mount for persistence
+    'port'          => 3307, // Custom host port
+])->start();
+```
+
+#### b) Generic `container()` Builder
+
+For any image that doesn't have a shortcut, use the `container()` method.
+
+```php
+Docker::container('alpine:latest')
+    ->command('sleep', '300') // Keeps the container running
     ->start();
 ```
 
-#### Prevent automatic clean up
+#### c) Registering Custom Services
 
-If you don't want your docker being cleaned up after it exists, call `doNotCleanUpAfterExit`.
+You can register your own shortcuts, for example, in your application's bootstrap file.
 
 ```php
-$containerInstance = DockerContainer::create($imageName)
-    ->doNotCleanUpAfterExit()
+// Register a service once
+Docker::register('mailhog', [
+    'image'       => 'mailhog/mailhog',
+    'ports'       => [1025 => 1025, 8025 => 8025],
+    'name_prefix' => 'mailhog',
+]);
+
+// Use it anywhere in your code
+Docker::mailhog()->start();
+```
+
+### 2. Fluent API
+
+All facade methods return a `DockerContainer` instance, so you can continue to use the fluent API to override or add configurations.
+
+```php
+Docker::mysql(['password' => 'secret'])
+    ->port(3307, 3306) // Override the default port
+    ->namedVolume('mysql-data', '/var/lib/mysql') // Use a named volume
+    ->network('backend') // Add to a network
     ->start();
 ```
 
-#### Privileged
+### 3. Configuration Examples
 
-If you want your docker being privileged, call `privileged`.
+#### Port Mapping
 
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->privileged()
-    ->start();
-```
-
-#### Custom shell
-
-If the `bash` shell is not available in your docker image, you can specify an alternative shell.
+Use `port(hostPort, containerPort)`.
 
 ```php
-$containerInstance = DockerContainer::create($imageName)
-    ->shell('sh')
-    ->start();
+->port(8080, 80)
 ```
 
-#### Naming the container
+#### Volume Mapping
 
-You can name the container by passing the name as the second argument to the constructor.
+- **Bind Mount**: Mounts a host path into the container.
+  ```php
+  use Ninja\Docker\ValueObjects\HostPath;
+  use Ninja\Docker\ValueObjects\ContainerPath;
+
+  ->volume(HostPath::from('/path/on/host'), ContainerPath::from('/path/in/container'))
+  ```
+- **Named Volume**: Uses a Docker-managed volume.
+  ```php
+  use Ninja\Docker\ValueObjects\VolumeName;
+  use Ninja\Docker\ValueObjects\ContainerPath;
+
+  ->namedVolume(VolumeName::from('my-volume'), ContainerPath::from('/path/in/container'))
+  ```
+
+#### Environment Variables
 
 ```php
-new DockerContainer($imageName, $nameOfContainer);
+->environment('MY_VAR', 'its_value')
+->environment('ANOTHER_VAR', 'another_value')
 ```
 
-Alternatively, use the `name` method.
+
+### 4. Interacting with Running Containers
+
+The `start()` method returns a `DockerContainerInstance`.
 
 ```php
-$containerInstance = DockerContainer::create($imageName)
-    ->name($yourName)
-    ->start();
+$container = Docker::nginx()->start();
+
+// Get the container's IP address
+$ip = $container->getIp();
+
+// Execute a command
+$output = $container->execute('whoami'); // returns "root"
+
+// Get the container ID
+$id = $container->getContainerId();
+
+// Check if it's running
+if ($container->isRunning()) {
+    // ...
+}
+
+// Stop the container
+$container->stop();
 ```
 
-#### Mapping ports
-
-You can map ports between the host machine and the docker container using the `mapPort` method. To map multiple ports, just call `mapPort` multiple times.
+You can also connect to an already running container.
 
 ```php
-$containerInstance = DockerContainer::create($imageName)
-    ->mapPort($portOnHost, $portOnContainer)
-    ->mapPort($anotherPortOnHost, $anotherPortOnContainer)
-    ->start();
+$container = DockerContainerInstance::fromExisting('my-nginx');
+$container->execute('echo "Hello from an existing container"');
 ```
 
-#### Environment variables
+## Testing
 
-You can set environment variables using the `setEnvironmentVariable` method. To add multiple arguments, just call `setEnvironmentVariable` multiple times.
+Before running the tests for the first time, you need to build the Docker image for testing:
 
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->setEnvironmentVariable($variableKey, $variableValue)
-    ->setEnvironmentVariable($anotherVariableKey, $anotherVariableValue)
-    ->start();
-```
-
-#### Setting Volumes
-
-You can set volumes using the `bindMount` or `namedVolume` methods. To add multiple arguments, just call the methods multiple times.
-
-```php
-// For bind mounts (host filesystem)
-$containerInstance = DockerContainer::create($imageName)
-    ->bindMount($pathOnHost, $pathOnDocker)
-    ->bindMount($anotherPathOnHost, $anotherPathOnDocker)
-    ->start();
-
-// For Docker managed volumes
-$containerInstance = DockerContainer::create($imageName)
-    ->namedVolume('data-volume', $pathOnDocker)
-    ->namedVolume('another-volume', $anotherPathOnDocker)
-    ->start();
-```
-
-**Note**: The old `setVolume()` method is deprecated but still works for backward compatibility.
-
-#### Setting Labels
-
-You can set labels using the `setLabel` method. To add multiple arguments, just call `setLabel` multiple times.
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->setLabel($labelName, $labelValue)
-    ->setLabel($anotherLabelName, $anotherLabelValue)
-    ->start();
-```
-
-#### Adding Commands
-
-You can add commands using the `setCommands` method.
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->setCommands('--api.insecure=true', '--providers.docker=true')
-    ->start();
-```
-These commands will be placed at the end of to the `docker run` command.
-
-#### Add optional arguments
-
-If you want to add optional arguments to the `docker run` command, use `setOptionalArgs` method:
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->setOptionalArgs('-it', '-a')
-    ->start();
-```
-These arguments will be placed after `docker run` immediately.
-
-
-#### Automatically stopping the container after PHP exists
-
-When using this package in a testing environment, it can be handy that the docker container is stopped after `__destruct` is called on it (mostly this will happen when the PHP script ends). You can enable this behaviour with the `stopOnDestruct` method.
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->stopOnDestruct()
-    ->start();
-```
-
-#### Attaching a network to the container
-
-If you want to attach the container to a docker network, use `network` method:
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->network('my-network')
-    ->start();
-```
-
-#### Specify a remote docker host for execution
-
-You can set the host used for executing the container. The `docker` command line accepts a daemon socket string. To connect to a remote docker host via ssh, use the syntax `ssh://username@hostname`. Note that the proper SSH keys will already need to be configured for this work.
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->remoteHost('ssh://username@hostname')
-    ->start();
-```
-
-#### Specify an alternative command to execute
-
-Upon startup of a container, docker will execute the command defined within the container. The `command` method gives the ability to override to default command to run within the container.
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->command('ls -l /etc')
-    ->start();
-```
-
-#### Getting the start command string
-
-You can get the string that will be executed when a container is started with the `getStartCommand` function
-
-```php
-// returns "docker run -d --rm spatie/docker"
-DockerContainer::create($imageName)->getStartCommand();
-```
-
-#### Changing the start command timeout
-
-You can change the timeout for the start command with the `setStartCommandTimeout` function _(the default is 60s)_.
-
-```php
-$containerInstance = DockerContainer::create($imageName)
-    ->setStartCommandTimeout(120)
-    ->start();
-```
-
-### Available methods on the docker container instance
-
-#### Executing a command
-
-To execute a command on the container, use the `execute` method.
-
-```php
-$process = $instance->execute($command);
-```
-
-You can execute multiple command in one go by passing an array.
-
-```php
-$process = $instance->execute([$command, $anotherCommand]);
-$asyncProcess = $instance->execute([$command, $anotherCommand], true);
-
-```
-
-To change the process timeout you can pass a third parameter to the `execute` method _(the default is 60s)_.
-
-```php
-$process = $instance->execute([$command, $anotherCommand], false, 3600);
-```
-
-The execute method returns an instance of [`Symfony/Process`](https://symfony.com/doc/current/components/process.html).
-
-You can check if your command ran successfully using the `isSuccessful` $method
-
-```php
-$process->isSuccessful(); // returns a boolean
-```
-
-You can get to the output using `getOutput()`. If the command did not run successfully, you can use `getErrorOutput()`. For more information on how to work with a `Process` head over to [the Symfony docs](https://symfony.com/doc/current/components/process.html).
-
-#### Installing a public key
-
-If you cant to connect to your container instance via SSH, you probably want to add a public key to it.
-
-This can be done using the `addPublicKey` method.
-
-```php
-$instance->addPublicKey($pathToPublicKey);
-```
-
-It is assumed that the `authorized_keys` file is located in at `/root/.ssh/authorized_keys`. If this is not the case, you can specify the path of that file as a second parameter.
-
-```php
-$instance->addPublicKey($pathToPublicKey, $pathToAuthorizedKeys);
-```
-
-Note that in order to be able to connect via SSH, you should set up a SSH server in your `dockerfile`. Take a look at the `dockerfile` in the tests of this package for an example.
-
-#### Adding files to your instance
-
-Files can be added to an instance with `addFiles`.
-
-```php
-$instance->addFiles($fileOrDirectoryOnHost, $pathInContainer);
-```
-
-#### Get the docker inspect information
-
-The json decoded array from the docker inspect command can be retrieved with `inspect`.
-
-```php
-$inspectArray = $instance->inspect();
-$inspectArray[0]['State']['Status']; // Running, Starting etc.
-$inspectArray[0]['RestartCount']; // Integer
-$inspectArray[0]['NetworkSettings']['IPAddress']; // 172.17.0.2
-```
-
-#### Adding other functions on the docker instance
-
-The `Ninja\Docker\ContainerInstance` class is [macroable](https://github.com/spatie/macroable). This means you can add extra functions to it.
-
-````php
-Ninja\Docker\DockerContainerInstance::macro('whoAmI', function () {
-    $process = $containerInstance->run('whoami');
-
-
-    return $process->getOutput();
-});
-
-$containerInstance = DockerContainer::create($imageName)->start();
-
-$containerInstance->whoAmI(); // returns of name of user in the docker container
-````
-
-### Testing
-
-Before running the tests for the first time, you must build the `spatie/docker` container with:
-
-````bash
+```bash
 composer build-docker
-````
+```
 
-Next, you can run the tests with:
-``` bash
+Then, you can run the full test suite with [Pest](https://pestphp.com/):
+
+```bash
 composer test
 ```
 
@@ -480,19 +243,19 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 
 ## Contributing
 
-Please see [CONTRIBUTING](https://github.com/spatie/.github/blob/main/CONTRIBUTING.md) for details.
+Please see `CONTRIBUTING.md` for details. Contributions are welcome.
 
 ## Security
 
-If you've found a bug regarding security please mail [security@spatie.be](mailto:security@spatie.be) instead of using the issue tracker.
+If you've found a security vulnerability, please email [yosoy@diego.ninja](mailto:yosoy@diego.ninja) instead of using the issue tracker.
 
 ## Credits
 
+- [Diego Rin Martin](https://github.com/diego-ninja)
 - [Ruben Van Assche](https://github.com/rubenvanassche)
 - [Freek Van der Herten](https://github.com/freekmurze)
-- [Diego Rin Martin](https://github.com/diego-ninja)
-- [All Contributors](../../contributors)
+
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see the [License File](LICENSE.md) for more information.

@@ -5,7 +5,7 @@
 
 declare(strict_types=1);
 
-use Ninja\Docker\VolumeMapping;
+use Ninja\Docker\Mappings\VolumeMapping;
 
 it('should convert to a string correctly', function () {
     $mapping = new VolumeMapping('/foo', '/bar');

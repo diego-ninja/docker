@@ -5,9 +5,9 @@
 
 declare(strict_types=1);
 
-use Ninja\Docker\NamedVolumeMapping;
-use Ninja\Docker\ValueObjects\VolumeName;
+use Ninja\Docker\Mappings\NamedVolumeMapping;
 use Ninja\Docker\ValueObjects\ContainerPath;
+use Ninja\Docker\ValueObjects\VolumeName;
 
 it('creates named volume with value objects', function () {
     $name   = VolumeName::from('data-volume');

@@ -369,7 +369,7 @@ it('creates bind mount with primitives', function () {
         ->bindMount($tempFile, '/app/data');
 
     expect($container->bindMounts)->toHaveCount(1)
-        ->and($container->bindMounts[0])->toBeInstanceOf(\Ninja\Docker\BindMountMapping::class);
+        ->and($container->bindMounts[0])->toBeInstanceOf(\Ninja\Docker\Mappings\BindMountMapping::class);
 
     unlink($tempFile);
 });
@@ -379,7 +379,7 @@ it('creates named volume with primitives', function () {
         ->namedVolume('data-volume', '/app/data');
 
     expect($container->namedVolumes)->toHaveCount(1)
-        ->and($container->namedVolumes[0])->toBeInstanceOf(\Ninja\Docker\NamedVolumeMapping::class);
+        ->and($container->namedVolumes[0])->toBeInstanceOf(\Ninja\Docker\Mappings\NamedVolumeMapping::class);
 });
 
 it('validates bind mount paths', function () {

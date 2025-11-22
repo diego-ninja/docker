@@ -19,7 +19,7 @@ it('creates nginx with default port mapping', function () {
 
     expect($container->portMappings)->toHaveCount(1);
 
-    /** @var \Ninja\Docker\PortMapping $portMapping */
+    /** @var \Ninja\Docker\Mappings\PortMapping $portMapping */
     $portMapping = $container->portMappings[0];
     expect($portMapping->portOnHost->value)->toBe(80)
         ->and($portMapping->portOnDocker->value)->toBe(80);
@@ -108,7 +108,7 @@ it('requires name_prefix in service definition', function () {
 it('allows port override via config', function () {
     $container = Docker::postgres(['port' => 5433]);
 
-    /** @var \Ninja\Docker\PortMapping $portMapping */
+    /** @var \Ninja\Docker\Mappings\PortMapping $portMapping */
     $portMapping = $container->portMappings[0];
     expect($portMapping->portOnHost->value)->toBe(5433)
         ->and($portMapping->portOnDocker->value)->toBe(5432);
@@ -117,7 +117,7 @@ it('allows port override via config', function () {
 it('uses default port when not overridden', function () {
     $container = Docker::postgres();
 
-    /** @var \Ninja\Docker\PortMapping $portMapping */
+    /** @var \Ninja\Docker\Mappings\PortMapping $portMapping */
     $portMapping = $container->portMappings[0];
     expect($portMapping->portOnHost->value)->toBe(5432)
         ->and($portMapping->portOnDocker->value)->toBe(5432);
@@ -165,7 +165,7 @@ it('mounts data directory for mysql', function () {
 
     expect($container->bindMounts)->toHaveCount(1);
 
-    /** @var \Ninja\Docker\BindMountMapping $bindMount */
+    /** @var \Ninja\Docker\Mappings\BindMountMapping $bindMount */
     $bindMount = $container->bindMounts[0];
     expect($bindMount->source->value)->toBe($tempDir)
         ->and($bindMount->target->value)->toBe('/var/lib/mysql');
@@ -184,7 +184,7 @@ it('mounts data directory for postgres', function () {
 
     expect($container->bindMounts)->toHaveCount(1);
 
-    /** @var \Ninja\Docker\BindMountMapping $bindMount */
+    /** @var \Ninja\Docker\Mappings\BindMountMapping $bindMount */
     $bindMount = $container->bindMounts[0];
     expect($bindMount->source->value)->toBe($tempDir)
         ->and($bindMount->target->value)->toBe('/var/lib/postgresql/data');
@@ -242,7 +242,7 @@ it('allows fluent override after mysql shortcut', function () {
         ->mapPort(3307, 3306)
         ->namedVolume('mysql-data', '/var/lib/mysql');
 
-    /** @var \Ninja\Docker\PortMapping $portMapping */
+    /** @var \Ninja\Docker\Mappings\PortMapping $portMapping */
     $portMapping = $container->portMappings[1];  // Second port (first is 3306:3306)
     expect($portMapping->portOnHost->value)->toBe(3307)
         ->and($portMapping->portOnDocker->value)->toBe(3306)

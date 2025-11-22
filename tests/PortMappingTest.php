@@ -5,7 +5,7 @@
 
 declare(strict_types=1);
 
-use Ninja\Docker\PortMapping;
+use Ninja\Docker\Mappings\PortMapping;
 use Ninja\Docker\ValueObjects\Port;
 
 it('should convert to a string correctly', function () {

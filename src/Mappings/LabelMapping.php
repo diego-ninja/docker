@@ -5,7 +5,7 @@
 
 declare(strict_types=1);
 
-namespace Ninja\Docker;
+namespace Ninja\Docker\Mappings;
 
 final readonly class LabelMapping
 {

@@ -11,3 +11,5 @@ captainhook.json
 conventional-commits.json
 .worktrees/
 
+/docs/plans/2025-11-20-v3-implementation-plan.md
+/docs/plans/2025-11-22-docker-facade-implementation-plan.md

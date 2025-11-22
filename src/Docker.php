@@ -13,7 +13,7 @@ use InvalidArgumentException;
 final class Docker
 {
     /** @var array<string, array{image: string, ports?: array<int, int>, name_prefix: string, env_vars?: list<string>, volumes?: list<string>}> */
-    private const SERVICES = [
+    private const array SERVICES = [
         'nginx' => [
             'image'       => 'nginx:latest',
             'ports'       => [80 => 80],
