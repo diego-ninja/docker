@@ -35,6 +35,107 @@ $container->execute('ls -la');
 $container->stop();
 ```
 
+## Docker Facade (v3.1.0+)
+
+The `Docker` facade provides ergonomic shortcuts for common services:
+
+### Quick Start
+
+```php
+use Ninja\Docker\Docker;
+
+// Nginx
+Docker::nginx()->start();
+
+// MySQL
+Docker::mysql(['password' => 'secret'])->start();
+
+// PostgreSQL
+Docker::postgres(['password' => 'secret', 'database' => 'myapp'])->start();
+
+// Redis
+Docker::redis()->start();
+```
+
+### Configuration Options
+
+Each service accepts a configuration array:
+
+```php
+// MySQL with database and user
+Docker::mysql([
+    'password' => 'root_secret',
+    'database' => 'myapp',
+    'user' => 'appuser',
+    'user_password' => 'user_secret',
+    'data_dir' => '/path/to/data',  // Persistent data
+    'port' => 3307,                 // Custom port
+])->start();
+
+// PostgreSQL with custom configuration
+Docker::postgres([
+    'password' => 'secret',
+    'database' => 'mydb',
+    'user' => 'dbuser',
+    'data_dir' => '/path/to/data',
+    'port' => 5433,
+])->start();
+```
+
+### Fluent Override
+
+Shortcuts return `DockerContainer` instances, so you can use the fluent API:
+
+```php
+Docker::mysql(['password' => 'secret'])
+    ->mapPort(3307, 3306)           // Override port
+    ->namedVolume('mysql-data', '/var/lib/mysql')  // Named volume
+    ->network('backend')            // Add to network
+    ->start();
+```
+
+### Custom Services
+
+Register your own services:
+
+```php
+Docker::register('rabbitmq', [
+    'image' => 'rabbitmq:3-management',
+    'ports' => [5672 => 5672, 15672 => 15672],
+    'name_prefix' => 'rabbitmq',
+]);
+
+Docker::rabbitmq()->start();
+```
+
+### Generic Container
+
+For any Docker image:
+
+```php
+Docker::container('alpine:latest')
+    ->mapPort(8080, 80)
+    ->setEnvironmentVariable('ENV', 'production')
+    ->start();
+```
+
+### Migration from v2.x Style
+
+```php
+// Old style (still works)
+DockerContainer::create('nginx:latest')
+    ->mapPort(80, 80)
+    ->name('my-nginx')
+    ->start();
+
+// New facade (more ergonomic)
+Docker::nginx()->start();
+
+// Both can coexist
+$nginx = Docker::nginx();
+$custom = DockerContainer::create('custom:latest');
+```
+
 ## Differences
 
 This package is a fork of [spatie/docker](https://github.com/spatie/docker) with some adaptations to fit my particular needs.
