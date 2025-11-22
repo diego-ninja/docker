@@ -11,12 +11,29 @@
 
 This package provides a nice way to start docker containers and execute commands on them.
 
+## Features
 
-````php
-$containerInstance = DockerContainer::create($imageName)->start();
-$process = $containerInstance->execute('whoami');
-$process->getOutput(); // returns the name of the user inside the docker container
-````
+- ✅ **Type-safe**: PHP 8.4 with PHPStan level 10
+- ✅ **Secure**: Command injection prevention via validated value objects
+- ✅ **Tested**: 95%+ test coverage
+- ✅ **Modern**: PHP 8.4 property hooks, asymmetric visibility
+
+## Quick Start
+
+```php
+use Ninja\Docker\DockerContainer;
+
+$container = DockerContainer::create('nginx:latest')
+    ->mapPort(8080, 80)
+    ->name('my-nginx')
+    ->bindMount('/path/on/host', '/path/in/container')
+    ->setEnvironmentVariable('ENV_VAR', 'value')
+    ->start();
+
+$container->execute('ls -la');
+
+$container->stop();
+```
 
 ## Differences
 
@@ -49,6 +66,8 @@ You can install the package via composer:
 ```bash
 composer require diego-ninja/docker
 ```
+
+**Requires PHP 8.4+**
 
 ## Usage
 
@@ -142,14 +161,23 @@ $containerInstance = DockerContainer::create($imageName)
 
 #### Setting Volumes
 
-You can set volumes using the `setVolume` method. To add multiple arguments, just call `setVolume` multiple times.
+You can set volumes using the `bindMount` or `namedVolume` methods. To add multiple arguments, just call the methods multiple times.
 
 ```php
+// For bind mounts (host filesystem)
 $containerInstance = DockerContainer::create($imageName)
-    ->setVolume($pathOnHost, $pathOnDocker)
-    ->setVolume($anotherPathOnHost, $anotherPathOnDocker)
+    ->bindMount($pathOnHost, $pathOnDocker)
+    ->bindMount($anotherPathOnHost, $anotherPathOnDocker)
+    ->start();
+
+// For Docker managed volumes
+$containerInstance = DockerContainer::create($imageName)
+    ->namedVolume('data-volume', $pathOnDocker)
+    ->namedVolume('another-volume', $anotherPathOnDocker)
     ->start();
 ```
+
+**Note**: The old `setVolume()` method is deprecated but still works for backward compatibility.
 
 #### Setting Labels
 
