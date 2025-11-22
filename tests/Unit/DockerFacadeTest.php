@@ -104,3 +104,21 @@ it('requires name_prefix in service definition', function () {
     ]))
         ->toThrow(InvalidArgumentException::class, 'must include "name_prefix"');
 });
+
+it('allows port override via config', function () {
+    $container = Docker::postgres(['port' => 5433]);
+
+    /** @var \Ninja\Docker\PortMapping $portMapping */
+    $portMapping = $container->portMappings[0];
+    expect($portMapping->portOnHost->value)->toBe(5433)
+        ->and($portMapping->portOnDocker->value)->toBe(5432);
+});
+
+it('uses default port when not overridden', function () {
+    $container = Docker::postgres();
+
+    /** @var \Ninja\Docker\PortMapping $portMapping */
+    $portMapping = $container->portMappings[0];
+    expect($portMapping->portOnHost->value)->toBe(5432)
+        ->and($portMapping->portOnDocker->value)->toBe(5432);
+});

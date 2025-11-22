@@ -141,9 +141,11 @@ final class Docker
         // Create container with image
         $container = DockerContainer::create($definition['image']);
 
-        // Apply default port mappings
+        // Apply default port mappings with optional override
         foreach ($definition['ports'] ?? [] as $hostPort => $containerPort) {
-            $container->mapPort($hostPort, $containerPort);
+            /** @var int $actualHostPort */
+            $actualHostPort = $config['port'] ?? $hostPort;
+            $container->mapPort($actualHostPort, $containerPort);
         }
 
         // Auto-generate unique name
