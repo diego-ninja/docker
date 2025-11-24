@@ -1,7 +1,7 @@
 # 🐋 Docker for PHP
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/granite)
-[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/granite)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/docker)
+[![Total Downloads](https://img.shields.io/packagist/dt/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://packagist.org/packages/diego-ninja/docker)
 ![PHP Version](https://img.shields.io/packagist/php-v/diego-ninja/docker.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)](https://opensource.org/licenses/MIT)
 ![GitHub last commit](https://img.shields.io/github/last-commit/diego-ninja/docker?style=flat-square&color=blue&logoColor=%23949ca4&labelColor=%233f4750)
